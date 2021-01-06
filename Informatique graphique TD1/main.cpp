@@ -18,7 +18,6 @@
 
 #include "objects.hpp"
  
- 
 int main() {
     int W = 512;
     int H = 512;
@@ -28,6 +27,10 @@ int main() {
     double R = 10;
     Sphere S(O,R);
     double fov = 60 * M_PI / 180;
+    
+    double I = 1e7;
+    Vector rho(1,0,1);
+    Vector L(-10, 20, 40);
     
     
     std::vector<unsigned char> image(W*H * 3, 0);
@@ -39,18 +42,21 @@ int main() {
             
             Ray r(C,u);
             
-            if ( S.intersect(r) )
+            Vector P, N;
+            bool inter = S.intersect(r, P, N);
+            Vector color(0,0,0);
+            if ( inter )
             {
-                image[(i*W + j) * 3 + 0] = 255;
-                image[(i*W + j) * 3 + 1] = 255;
-                image[(i*W + j) * 3 + 2] = 255;
+                Vector PL = L - P;
+                double d = PL.sqrnorm();
+                PL.normalize();
+                double fact = I / (4 * M_PI * d);
+                color = rho / M_PI * (std::max(N.dot(PL) , 0.) * fact);
             }
-            else
-            {
-                image[(i*W + j) * 3 + 0] = 0;
-                image[(i*W + j) * 3 + 1] = 0;
-                image[(i*W + j) * 3 + 2] = 0;
-            }
+            //std::cout << ((i*W + j) * 3 + 0) << std::endl;
+            image[((H-i-1)*W + j) * 3 + 0] = std::min(255.,color[0]);
+            image[((H-i-1)*W + j) * 3 + 1] = std::min(255.,color[1]);
+            image[((H-i-1)*W + j) * 3 + 2] = std::min(255.,color[2]);
         }
     }
     std::string imageName;

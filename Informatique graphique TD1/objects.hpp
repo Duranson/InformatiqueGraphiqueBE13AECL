@@ -10,6 +10,8 @@
 
 #include <stdio.h>
 
+#include <iostream>
+
 class Vector
 {
 public:
@@ -22,6 +24,7 @@ public:
     double dot(const Vector);
     Vector operator* (double);
     Vector operator* (Vector);
+    Vector operator/ (double);
     void normalize();
     double operator[](int i) const {return coord[i];} ;
     double &operator[](int i) {return coord[i];} ;
@@ -43,6 +46,14 @@ public:
     Sphere(): O(), R() {}
     Sphere(Vector, double);
     bool intersect(Ray);
+    bool intersect(Ray, Vector&, Vector&);
+};
+
+class Scene
+{
+public:
+    //std::vector<Sphere> objects(0,Sphere());
+    Sphere intersects();
 };
 
 #endif /* vector_hpp */
