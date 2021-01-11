@@ -67,6 +67,7 @@ Sphere::Sphere()
 {
     O = Vector();
     R = 0.;
+    rho = Vector();
 };
 
 Sphere::Sphere(Vector o, double r, Vector _rho)
@@ -166,4 +167,23 @@ Vector Scene::intersects(Ray r)
     double fact = light.intensity / (4 * M_PI * d);
     color = s.rho / M_PI * (std::max(N.dot(PL) , 0.) * fact);
     return color;
+}
+
+Light::Light()
+{
+    position = Vector();
+    intensity = 0;
+}
+
+Light::Light( Vector pos, int intens)
+{
+    position = pos;
+    intensity = intens;
+}
+
+Vector::Vector()
+{
+    coord[0] = 0;
+    coord[1] = 0;
+    coord[2] = 0;
 }

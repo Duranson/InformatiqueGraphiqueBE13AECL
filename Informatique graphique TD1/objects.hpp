@@ -20,7 +20,7 @@ class Vector
 public:
     double coord[3];
     double sqrnorm();
-    Vector(): coord() {}
+    Vector();
     Vector(double,double,double);
     Vector operator+ (const Vector);
     Vector operator- (const Vector);
@@ -48,7 +48,7 @@ public:
     double R;
     Vector rho;
     Sphere();
-    Sphere(Vector O, double R, Vector rho);
+    Sphere(Vector, double, Vector);
     bool intersect(Ray);
     bool intersect(Ray, Vector&, Vector&);
 };
@@ -58,6 +58,8 @@ class Light
 public:
     Vector position;
     int intensity;
+    Light();
+    Light(Vector position, int intensity);
 };
 
 class Scene

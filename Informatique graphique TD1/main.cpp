@@ -22,22 +22,31 @@ int main() {
     int W = 512;
     int H = 512;
     
-    std::time_t sceneCreation = std::time(nullptr);
-    // Add elements to the scene
-    Vector C(0,0,55);
-    Vector O(10,10,10);
-    double R = 10;
-    Vector rho(1,0,1);
-    Sphere S(O,R,rho);
-    double fov = 60 * M_PI / 180;
+    // std::time_t sceneCreation = std::time(nullptr);
     
+    // Creation of the camera
+    Vector C(0,0,55);
+    double fov = 60 * M_PI / 180; // field of view
+    
+    // Create the light of the scene
     double I = 1e7;
     Vector L(-10, 20, 40);
+    Light mainLight(L ,I);
+    
+    Scene mainScene(mainLight);
+    
+    // Add elements to the scene
+    Vector O_1(10,10,10);
+    double R_1 = 10;
+    Vector rho_1(1,0,1);
+    Sphere S_1(O_1,R_1,rho_1);
+    
+    mainScene.addSphere(S_1);
     
     // std::string scT = std::asctime(std::localtime(&sceneCreation));
     // std::cout << scT << sceneCreation << " s to create the scene." << std::endl;
     
-    std::time_t raytracerTime = std::time(nullptr);
+    // std::time_t raytracerTime = std::time(nullptr);
     // Raytracing
     std::vector<unsigned char> image(W*H * 3, 0);
     for (int i = 0; i < H; i++) {
@@ -48,18 +57,8 @@ int main() {
             
             Ray r(C,u);
             
-            Vector P, N;
-            bool inter = S.intersect(r, P, N);
-            Vector color(0,0,0);
-            if ( inter )
-            {
-                Vector PL = L - P;
-                double d = PL.sqrnorm();
-                PL.normalize();
-                double fact = I / (4 * M_PI * d);
-                color = rho / M_PI * (std::max(N.dot(PL) , 0.) * fact);
-            }
-            //std::cout << ((i*W + j) * 3 + 0) << std::endl;
+            Vector color = mainScene.intersects(r);
+            
             image[((H-i-1)*W + j) * 3 + 0] = std::min(255.,color[0]);
             image[((H-i-1)*W + j) * 3 + 1] = std::min(255.,color[1]);
             image[((H-i-1)*W + j) * 3 + 2] = std::min(255.,color[2]);
