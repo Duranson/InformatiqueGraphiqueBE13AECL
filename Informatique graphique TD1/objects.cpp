@@ -63,10 +63,17 @@ void Vector::normalize()
     coord[2] = coord[2] / norm;
 };
 
-Sphere::Sphere(Vector o, double r)
+Sphere::Sphere()
+{
+    O = Vector();
+    R = 0.;
+};
+
+Sphere::Sphere(Vector o, double r, Vector _rho)
 {
     O = o;
     R = r;
+    rho = _rho;
 };
 
 Ray::Ray(Vector _C, Vector _u)
@@ -106,4 +113,57 @@ bool Sphere::intersect(Ray r, Vector& P, Vector& N)
     N = (P - O);
     N.normalize();
     return true;
+}
+
+Scene::Scene(Light l)
+{
+    objects = std::vector<Sphere>();
+    light = l;
+}
+
+void Scene::addSphere(Sphere S)
+{
+    objects.push_back(S);
+}
+
+Vector Scene::intersects(Ray r)
+{
+    // Adapter le code suivant à la structure de Scene -> itérer sur les sphères et prendre les P et N constants (source de lumiere)
+    std::vector<double> distances = {};
+    for (Sphere& s : objects)
+    {
+        double b = 2 * dot(r.u, r.C - s.O);
+        double c = (r.C - s.O).sqrnorm() - s.R * s.R;
+        double det = b * b - 4 * c;          // a = 1 because r.u is normalized
+        if (det >= 0)
+        {
+            double t;
+            
+            double sqrDelta = sqrt(det);
+            double t2 = ( - b + sqrDelta) / 2;
+            if (t2 < 0) t = 1e10;
+            double t1 = ( - b - sqrDelta) / 2;
+            if (t1 > 0)
+            {
+                t = t1;
+            } else {
+                t = t2;
+            };
+            distances.push_back(t);
+        }
+    }
+    if (distances.empty()) return Vector(0,0,0);
+    int i = std::min_element(distances.begin(), distances.end()) - distances.begin();
+    double t = *std::min_element(distances.begin(),distances.end());
+    Sphere s = objects[i];
+    Vector P = r.C + r.u * t;
+    Vector N = (P - s.O);
+    N.normalize();
+    Vector color(0,0,0);
+    Vector PL = light.position - P;
+    double d = PL.sqrnorm();
+    PL.normalize();
+    double fact = light.intensity / (4 * M_PI * d);
+    color = s.rho / M_PI * (std::max(N.dot(PL) , 0.) * fact);
+    return color;
 }

@@ -8,6 +8,9 @@
 #ifndef objects_hpp
 #define objects_hpp
 
+//#define _CRT_SECURE_NO_WARNINGS 1
+#include <vector>
+
 #include <stdio.h>
 
 #include <iostream>
@@ -43,17 +46,29 @@ class Sphere
 public:
     Vector O;
     double R;
-    Sphere(): O(), R() {}
-    Sphere(Vector, double);
+    Vector rho;
+    Sphere();
+    Sphere(Vector O, double R, Vector rho);
     bool intersect(Ray);
     bool intersect(Ray, Vector&, Vector&);
+};
+
+class Light
+{
+public:
+    Vector position;
+    int intensity;
 };
 
 class Scene
 {
 public:
-    //std::vector<Sphere> objects(0,Sphere());
-    Sphere intersects();
+    std::vector<Sphere> objects;
+    Light light;
+    Vector intersects(Ray);    // returns the color
+    void addSphere(Sphere S);
+    Scene();
+    Scene(Light);
 };
 
 #endif /* vector_hpp */
