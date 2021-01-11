@@ -29,19 +29,36 @@ int main() {
     double fov = 60 * M_PI / 180; // field of view
     
     // Create the light of the scene
-    double I = 1e7;
-    Vector L(-10, 20, 40);
-    Light mainLight(L ,I);
+    Light mainLight(Vector(-10, 20, 40) ,1e7);
     
     Scene mainScene(mainLight);
     
     // Add elements to the scene
-    Vector O_1(10,10,10);
-    double R_1 = 10;
-    Vector rho_1(1,0,1);
-    Sphere S_1(O_1,R_1,rho_1);
+    
+    // Walls
+    
+    double distance = 20; // All lights should be inside
+    double ray = 10000; // Should be big for the walls to appear flat
+    
+    Sphere W_1(Vector( - (ray + distance), 0, 0), ray, Vector(1,1,1));
+    Sphere W_2(Vector((ray + distance), 0, 0), ray, Vector(1,1,1));
+    Sphere W_floor(Vector(0, - (ray + distance), 0), ray, Vector(1,0,0));
+    Sphere W_4(Vector(0, (ray + distance), 0), ray, Vector(1,1,1));
+    Sphere W_back(Vector(0, 0, - (ray + distance / 2)), ray, Vector(1,1,1));
+    
+    // Spheres
+    Sphere S_1(Vector(10,-10,3), 8, Vector(1,1,1));
+    Sphere S_2(Vector(-10,-10,3), 8, Vector(1,1,1));
+    Sphere S_3(Vector(0,0,0), 12, Vector(1,0,0));
     
     mainScene.addSphere(S_1);
+    mainScene.addSphere(S_2);
+    mainScene.addSphere(S_3);
+    //mainScene.addSphere(W_1);
+    //mainScene.addSphere(W_2);
+    //mainScene.addSphere(W_floor);
+    //mainScene.addSphere(W_4);
+    mainScene.addSphere(W_back);
     
     // std::string scT = std::asctime(std::localtime(&sceneCreation));
     // std::cout << scT << sceneCreation << " s to create the scene." << std::endl;

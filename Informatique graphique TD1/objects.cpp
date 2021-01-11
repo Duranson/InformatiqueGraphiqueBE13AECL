@@ -151,11 +151,16 @@ Vector Scene::intersects(Ray r)
                 t = t2;
             };
             distances.push_back(t);
+        } else {
+            distances.push_back(1e7);
         }
     }
-    if (distances.empty()) return Vector(0,0,0);
     int i = std::min_element(distances.begin(), distances.end()) - distances.begin();
     double t = *std::min_element(distances.begin(),distances.end());
+    if (t >= 1e4)
+    {
+        return Vector(0,0,0);
+    }
     Sphere s = objects[i];
     Vector P = r.C + r.u * t;
     Vector N = (P - s.O);
