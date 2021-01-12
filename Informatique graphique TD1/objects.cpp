@@ -136,24 +136,26 @@ Vector Scene::intersects(Ray r)
         double b = 2 * dot(r.u, r.C - s.O);
         double c = (r.C - s.O).sqrnorm() - s.R * s.R;
         double det = b * b - 4 * c;          // a = 1 because r.u is normalized
+        double t;
         if (det >= 0)
         {
-            double t;
-            
             double sqrDelta = sqrt(det);
             double t2 = ( - b + sqrDelta) / 2;
             if (t2 < 0) t = 1e10;
-            double t1 = ( - b - sqrDelta) / 2;
-            if (t1 > 0)
+            else
             {
-                t = t1;
-            } else {
-                t = t2;
-            };
-            distances.push_back(t);
+                double t1 = ( - b - sqrDelta) / 2;
+                if (t1 > 0)
+                {
+                    t = t1;
+                } else {
+                    t = t2;
+                };
+            }
         } else {
-            distances.push_back(1e7);
+            t = 1e10;
         }
+        distances.push_back(t);
     }
     int i = std::min_element(distances.begin(), distances.end()) - distances.begin();
     double t = *std::min_element(distances.begin(),distances.end());
