@@ -15,10 +15,12 @@
 #include "stb_image.hpp"
 
 #include <iostream>
+#include <sstream>
 
 #include "objects.hpp"
  
 int main() {
+    auto start = std::chrono::high_resolution_clock::now();
     int W = 512;
     int H = 512;
     
@@ -92,9 +94,13 @@ int main() {
     // std::string imageName;
     // std::cout << "Nom de l'image : ";
     // std::cin >> imageName;
-    
+    auto end = std::chrono::high_resolution_clock::now();
+    auto diff = end - start;
+    auto diff_sec = std::chrono::duration_cast<std::chrono::milliseconds>(diff);
     // std::string location = "/Users/fabienduranson/Desktop/Pougne:Pro/ECL/INFO/Info graphique/InformatiqueGraphiqueBE13AECL/Images/new_test_" + scT + "_" + rtT + ".png";
-    std::string location = "/Users/fabienduranson/Desktop/Pougne:Pro/ECL/INFO/Info graphique/InformatiqueGraphiqueBE13AECL/Images/new_test.png";
+    std::ostringstream out;
+    out << "/Users/fabienduranson/Desktop/Pougne:Pro/ECL/INFO/Info graphique/InformatiqueGraphiqueBE13AECL/Images/new_test-" << diff_sec.count() << ".png";
+    std::string location = out.str();
     char* cname;
     cname = &location[0];
     stbi_write_png(cname, W, H, 3, &image[0], 0);
