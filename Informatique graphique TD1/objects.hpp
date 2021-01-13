@@ -24,6 +24,7 @@ public:
     Vector(double,double,double);
     Vector operator+ (const Vector);
     Vector operator- (const Vector);
+    Vector operator- ();
     double dot(const Vector);
     Vector operator* (double);
     Vector operator* (Vector);
@@ -48,8 +49,10 @@ public:
     double R;
     Vector rho;
     double reflexion;
+    double transparancy;
+    double n;
     Sphere();
-    Sphere(Vector, double, Vector, double);
+    Sphere(Vector, double, Vector, double, double, double);
     bool intersect(Ray);
     bool intersect(Ray, Vector&, Vector&);
 };

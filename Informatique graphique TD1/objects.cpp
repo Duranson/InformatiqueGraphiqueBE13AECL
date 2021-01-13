@@ -30,6 +30,11 @@ Vector Vector::operator-(const Vector v)
     return Vector(coord[0] - v.coord[0], coord[1] - v.coord[1], coord[2] - v.coord[2]);
 };
 
+Vector Vector::operator-()
+{
+    return Vector( - coord[0], - coord[1], - coord[2]);
+};
+
 Vector Vector::operator*(double a)
 {
     return Vector(coord[0] * a, coord[1] * a, coord[2] * a);
@@ -71,12 +76,14 @@ Sphere::Sphere()
     reflexion = 0;
 };
 
-Sphere::Sphere(Vector o, double r, Vector _rho, double refl)
+Sphere::Sphere(Vector o, double r, Vector _rho, double refl, double tr, double _n)
 {
     O = o;
     R = r;
     rho = _rho;
     reflexion = refl;
+    transparancy = tr;
+    n = _n;
 };
 
 Ray::Ray(Vector _C, Vector _u)
@@ -211,6 +218,7 @@ Vector Scene::intersects(Ray r, int bounds)
     Vector P = r.C + r.u * t;
     Vector N = (P - s.O);
     N.normalize();
+    bool inside_the_colliding_sphere = ( N.dot(r.u) > 0);
     if (is_shadowed(P, light.position))
     {
         color = Vector(0,0,0);
@@ -223,18 +231,32 @@ Vector Scene::intersects(Ray r, int bounds)
         double fact = light.intensity / (4 * M_PI * d);
         color = s.rho / M_PI * (std::max(N.dot(PL) , 0.) * fact);
     }
-    if (s.reflexion < 0.01)
-    {
-        return color;
-    }
-    else
+    if (s.reflexion > 0.01)
     {
         Vector up = r.u - N * r.u.dot(N) * 2.;
         up.normalize();
         double eps = 1e-4;
         Ray rp(P + up * eps, up);
-        return ( color * (1 - s.reflexion)  + intersects(rp, bounds + 1) * s.reflexion );
+        color = ( color * (1 - s.reflexion)  + intersects(rp, bounds + 1) * s.reflexion );
     }
+    if (s.transparancy > 0.01)
+    {
+        double n1 = 1;
+        double n2 = s.n;
+        if (inside_the_colliding_sphere)
+        {
+            N = - N;
+            std::swap(n1,n2);
+        }
+        Vector tt = (r.u -  N * r.u.dot(N)) * (n1 / n2)  ;
+        Vector tn = - N * sqrt(std::max(0., 1 - (n1 / n2) * (n1 / n2) * (1 - r.u.dot(N) * r.u.dot(N))));
+        Vector refracted = tt + tn;
+        
+        double eps = 1e-4;
+        Ray rp(P + refracted * eps, refracted);
+        color = ( color * (1 - s.transparancy)  + intersects(rp, bounds + 1) * s.transparancy );
+    }
+    return color;
 }
 
 Light::Light()

@@ -49,19 +49,19 @@ int main() {
     double roof_distance = 41; // All lights should be inside
     double ray = 1000; // Should be big for the walls to appear flat
     
-    Sphere W_left(Vector( - (ray + horizontal_distance), 0, 0), ray, Vector(0,0,1), 0.);
-    Sphere W_right(Vector((ray + horizontal_distance), 0, 0), ray, Vector(1,0,1), 0.);
-    Sphere W_floor(Vector(0, - (ray + floor_distance), 0), ray, Vector(1,0,0), 0.);
-    Sphere W_roof(Vector(0, (ray + roof_distance), 0), ray, Vector(0,1,1), 0.);
-    Sphere W_back(Vector(0, 0, - (ray + back_distance / 2)), ray, Vector(0,1,0), 0.);
-    Sphere W_front(Vector(0, 0, (ray + front_distance / 2)), ray, Vector(1,1,0), 0.);
+    Sphere W_left(Vector( - (ray + horizontal_distance), 0, 0), ray, Vector(0,0,1), 0., 0., 1.);
+    Sphere W_right(Vector((ray + horizontal_distance), 0, 0), ray, Vector(1,0,1), 0., 0., 1.);
+    Sphere W_floor(Vector(0, - (ray + floor_distance), 0), ray, Vector(1,0,0), 0.3, 0., 1.);
+    Sphere W_roof(Vector(0, (ray + roof_distance), 0), ray, Vector(0,1,1), 0., 0., 1.);
+    Sphere W_back(Vector(0, 0, - (ray + back_distance / 2)), ray, Vector(0,1,0), 0., 0., 1.);
+    Sphere W_front(Vector(0, 0, (ray + front_distance / 2)), ray, Vector(1,1,0), 0., 0., 1.);
     
     // Spheres
-    Sphere S_1(Vector(7, -3, 2), 6, Vector(1, 1, 1), 1.);
-    Sphere S_2(Vector(-7, -3, 2), 6, Vector(1, 1, 1), 1.);
-    Sphere S_3(Vector(0, 5, 0), 8, Vector(1, 0, 0), 0.);
+    Sphere S_1(Vector(7, -3, 2), 6, Vector(1, 1, 1), 1., 0., 1.);
+    Sphere S_2(Vector(-7, -3, 2), 6, Vector(1, 1, 1), 1., 0., 1.);
+    Sphere S_3(Vector(0, 5, 0), 8, Vector(1, 0, 0), 0., 0., 1.);
     
-    Sphere S_4(Vector(-15, 15, -10), 4, Vector(0.5, 0.5, 1), 1.);
+    Sphere S_4(Vector(2, 0, 20), 4, Vector(0.5, 0.5, 1), 1., 1., 1.4);
     
     mainScene.addSphere(S_1);
     mainScene.addSphere(S_2);
