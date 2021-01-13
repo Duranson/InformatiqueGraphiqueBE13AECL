@@ -45,28 +45,34 @@ int main() {
     double horizontal_distance = 40; // All lights should be inside
     double floor_distance = 10; // All lights should be inside
     double back_distance = 100; // All lights should be inside
+    double front_distance = 200; // All lights should be inside
     double roof_distance = 41; // All lights should be inside
     double ray = 1000; // Should be big for the walls to appear flat
     
-    Sphere W_left(Vector( - (ray + horizontal_distance), 0, 0), ray, Vector(0,0,1));
-    Sphere W_right(Vector((ray + horizontal_distance), 0, 0), ray, Vector(1,0,1));
-    Sphere W_floor(Vector(0, - (ray + floor_distance), 0), ray, Vector(1,0,0));
-    Sphere W_roof(Vector(0, (ray + roof_distance), 0), ray, Vector(0,1,1));
-    Sphere W_back(Vector(0, 0, - (ray + back_distance / 2)), ray, Vector(0,1,0));
+    Sphere W_left(Vector( - (ray + horizontal_distance), 0, 0), ray, Vector(0,0,1), 0.);
+    Sphere W_right(Vector((ray + horizontal_distance), 0, 0), ray, Vector(1,0,1), 0.);
+    Sphere W_floor(Vector(0, - (ray + floor_distance), 0), ray, Vector(1,0,0), 0.);
+    Sphere W_roof(Vector(0, (ray + roof_distance), 0), ray, Vector(0,1,1), 0.);
+    Sphere W_back(Vector(0, 0, - (ray + back_distance / 2)), ray, Vector(0,1,0), 0.);
+    Sphere W_front(Vector(0, 0, (ray + front_distance / 2)), ray, Vector(1,1,0), 0.);
     
     // Spheres
-    Sphere S_1(Vector(7, -3, 2), 6, Vector(1, 1, 1));
-    Sphere S_2(Vector(-7, -3, 2), 6, Vector(1, 1, 1));
-    Sphere S_3(Vector(0, 5, 0), 8, Vector(1, 0, 0));
+    Sphere S_1(Vector(7, -3, 2), 6, Vector(1, 1, 1), 1.);
+    Sphere S_2(Vector(-7, -3, 2), 6, Vector(1, 1, 1), 1.);
+    Sphere S_3(Vector(0, 5, 0), 8, Vector(1, 0, 0), 0.);
+    
+    Sphere S_4(Vector(-15, 15, -10), 4, Vector(0.5, 0.5, 1), 1.);
     
     mainScene.addSphere(S_1);
     mainScene.addSphere(S_2);
     mainScene.addSphere(S_3);
+    mainScene.addSphere(S_4);
     mainScene.addSphere(W_left);
     mainScene.addSphere(W_right);
     mainScene.addSphere(W_floor);
     mainScene.addSphere(W_roof);
     mainScene.addSphere(W_back);
+    mainScene.addSphere(W_front);
     
     // std::string scT = std::asctime(std::localtime(&sceneCreation));
     // std::cout << scT << sceneCreation << " s to create the scene." << std::endl;
@@ -82,7 +88,7 @@ int main() {
             
             Ray r(C,u);
             
-            Vector color = mainScene.intersects(r);
+            Vector color = mainScene.intersects(r, 0);
             
             image[((H-i-1)*W + j) * 3 + 0] = std::min(255., std::pow(color[0],0.45));
             image[((H-i-1)*W + j) * 3 + 1] = std::min(255., std::pow(color[1],0.45));

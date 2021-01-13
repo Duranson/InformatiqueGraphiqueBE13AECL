@@ -47,8 +47,9 @@ public:
     Vector O;
     double R;
     Vector rho;
+    double reflexion;
     Sphere();
-    Sphere(Vector, double, Vector);
+    Sphere(Vector, double, Vector, double);
     bool intersect(Ray);
     bool intersect(Ray, Vector&, Vector&);
 };
@@ -67,11 +68,12 @@ class Scene
 public:
     std::vector<Sphere> objects;
     Light light;
-    Vector intersects(Ray);    // returns the color
+    Vector intersects(Ray, int bounds);    // returns the color
     bool is_shadowed(Vector, Vector);
     void addSphere(Sphere S);
     Scene();
     Scene(Light);
+    Vector getColor(Ray,int);
 };
 
 #endif /* vector_hpp */

@@ -68,13 +68,15 @@ Sphere::Sphere()
     O = Vector();
     R = 0.;
     rho = Vector();
+    reflexion = 0;
 };
 
-Sphere::Sphere(Vector o, double r, Vector _rho)
+Sphere::Sphere(Vector o, double r, Vector _rho, double refl)
 {
     O = o;
     R = r;
     rho = _rho;
+    reflexion = refl;
 };
 
 Ray::Ray(Vector _C, Vector _u)
@@ -159,16 +161,18 @@ bool Scene::is_shadowed(Vector P, Vector L)
         } else {
             t = 1e10;
         }
-        double eps =0.01;
-        if (t > eps && t < (1 + eps) * dist)
+        double eps = 0.01;
+        if (t > eps && t < (1 - eps) * dist)
             return true;
     }
     return false;
 }
 
-Vector Scene::intersects(Ray r)
+Vector Scene::intersects(Ray r, int bounds)
 {
     // Adapter le code suivant à la structure de Scene -> itérer sur les sphères et prendre les P et N constants (source de lumiere)
+    if (bounds > 5)
+        return Vector(0,0,0);
     std::vector<double> distances = {};
     for (Sphere& s : objects)
     {
@@ -202,19 +206,35 @@ Vector Scene::intersects(Ray r)
     {
         return Vector(0,0,0);
     }
+    Vector color(0,0,0);
     Sphere s = objects[i];
     Vector P = r.C + r.u * t;
-    if (is_shadowed(P, light.position))
-        return Vector(0,0,0);
     Vector N = (P - s.O);
     N.normalize();
-    Vector color(0,0,0);
-    Vector PL = light.position - P;
-    double d = PL.sqrnorm();
-    PL.normalize();
-    double fact = light.intensity / (4 * M_PI * d);
-    color = s.rho / M_PI * (std::max(N.dot(PL) , 0.) * fact);
-    return color;
+    if (is_shadowed(P, light.position))
+    {
+        color = Vector(0,0,0);
+    }
+    else
+    {
+        Vector PL = light.position - P;
+        double d = PL.sqrnorm();
+        PL.normalize();
+        double fact = light.intensity / (4 * M_PI * d);
+        color = s.rho / M_PI * (std::max(N.dot(PL) , 0.) * fact);
+    }
+    if (s.reflexion < 0.01)
+    {
+        return color;
+    }
+    else
+    {
+        Vector up = r.u - N * r.u.dot(N) * 2.;
+        up.normalize();
+        double eps = 1e-4;
+        Ray rp(P + up * eps, up);
+        return ( color * (1 - s.reflexion)  + intersects(rp, bounds + 1) * s.reflexion );
+    }
 }
 
 Light::Light()
