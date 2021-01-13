@@ -16,6 +16,8 @@
 
 #include <iostream>
 #include <sstream>
+#include <algorithm>
+#include <cmath>
 
 #include "objects.hpp"
  
@@ -32,7 +34,7 @@ int main() {
     
     // Create the light of the scene
     //Light mainLight(Vector(-10, 20, 40) ,1e7);
-    Light mainLight(Vector(-10, 20, 40) ,1e7);
+    Light mainLight(Vector(-10, 20, 40) , 2e9);
     
     Scene mainScene(mainLight);
     
@@ -40,7 +42,7 @@ int main() {
     
     // Walls
     
-    double horizontal_distance = 30; // All lights should be inside
+    double horizontal_distance = 40; // All lights should be inside
     double floor_distance = 10; // All lights should be inside
     double back_distance = 100; // All lights should be inside
     double roof_distance = 41; // All lights should be inside
@@ -82,9 +84,9 @@ int main() {
             
             Vector color = mainScene.intersects(r);
             
-            image[((H-i-1)*W + j) * 3 + 0] = std::min(255.,color[0]);
-            image[((H-i-1)*W + j) * 3 + 1] = std::min(255.,color[1]);
-            image[((H-i-1)*W + j) * 3 + 2] = std::min(255.,color[2]);
+            image[((H-i-1)*W + j) * 3 + 0] = std::min(255., std::pow(color[0],0.45));
+            image[((H-i-1)*W + j) * 3 + 1] = std::min(255., std::pow(color[1],0.45));
+            image[((H-i-1)*W + j) * 3 + 2] = std::min(255., std::pow(color[2],0.45));
         }
     }
     
@@ -97,7 +99,6 @@ int main() {
     auto end = std::chrono::high_resolution_clock::now();
     auto diff = end - start;
     auto diff_sec = std::chrono::duration_cast<std::chrono::milliseconds>(diff);
-    // std::string location = "/Users/fabienduranson/Desktop/Pougne:Pro/ECL/INFO/Info graphique/InformatiqueGraphiqueBE13AECL/Images/new_test_" + scT + "_" + rtT + ".png";
     std::ostringstream out;
     out << "/Users/fabienduranson/Desktop/Pougne:Pro/ECL/INFO/Info graphique/InformatiqueGraphiqueBE13AECL/Images/new_test-" << diff_sec.count() << ".png";
     std::string location = out.str();

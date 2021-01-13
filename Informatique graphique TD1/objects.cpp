@@ -127,6 +127,45 @@ void Scene::addSphere(Sphere S)
     objects.push_back(S);
 }
 
+bool Scene::is_shadowed(Vector P, Vector L)
+{
+    Vector u = L - P;
+    double dist = sqrt(u.sqrnorm());
+    
+    u.normalize();
+    Ray r(P, u);
+    
+    for (Sphere& s : objects)
+    {
+        double b = 2 * dot(r.u, r.C - s.O);
+        double c = (r.C - s.O).sqrnorm() - s.R * s.R;
+        double det = b * b - 4 * c;          // a = 1 because r.u is normalized
+        double t;
+        if (det >= 0)
+        {
+            double sqrDelta = sqrt(det);
+            double t2 = ( - b + sqrDelta) / 2;
+            if (t2 < 0) t = 1e10;
+            else
+            {
+                double t1 = ( - b - sqrDelta) / 2;
+                if (t1 > 0)
+                {
+                    t = t1;
+                } else {
+                    t = t2;
+                };
+            }
+        } else {
+            t = 1e10;
+        }
+        double eps =0.01;
+        if (t > eps && t < (1 + eps) * dist)
+            return true;
+    }
+    return false;
+}
+
 Vector Scene::intersects(Ray r)
 {
     // Adapter le code suivant à la structure de Scene -> itérer sur les sphères et prendre les P et N constants (source de lumiere)
@@ -165,6 +204,8 @@ Vector Scene::intersects(Ray r)
     }
     Sphere s = objects[i];
     Vector P = r.C + r.u * t;
+    if (is_shadowed(P, light.position))
+        return Vector(0,0,0);
     Vector N = (P - s.O);
     N.normalize();
     Vector color(0,0,0);

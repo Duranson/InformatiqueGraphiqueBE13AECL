@@ -68,6 +68,7 @@ public:
     std::vector<Sphere> objects;
     Light light;
     Vector intersects(Ray);    // returns the color
+    bool is_shadowed(Vector, Vector);
     void addSphere(Sphere S);
     Scene();
     Scene(Light);
