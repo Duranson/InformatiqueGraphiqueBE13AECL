@@ -29,6 +29,7 @@ public:
     Vector operator* (double);
     Vector operator* (Vector);
     Vector operator/ (double);
+    Vector cross(Vector);
     void normalize();
     double operator[](int i) const {return coord[i];} ;
     double &operator[](int i) {return coord[i];} ;
@@ -52,7 +53,7 @@ public:
     double transparancy;
     double n;
     Sphere();
-    Sphere(Vector, double, Vector, double, double, double);
+    Sphere(Vector o, double r, Vector _rho, double refl, double tr, double _n);
     bool intersect(Ray);
     bool intersect(Ray, Vector&, Vector&);
 };

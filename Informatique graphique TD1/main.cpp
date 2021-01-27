@@ -26,6 +26,9 @@
 
 #include <random>
 
+static std::default_random_engine engine(10) ; // random seed = 10
+static std::uniform_real_distribution<double> uniform(0, 1);
+
 int main() {
     // Integral::integral4Dcos2(100000);
     auto start = std::chrono::high_resolution_clock::now();
@@ -57,7 +60,7 @@ int main() {
     
     Sphere W_left(Vector( - (ray + horizontal_distance), 0, 0), ray, Vector(0,0,1), 0., 0., 1.);
     Sphere W_right(Vector((ray + horizontal_distance), 0, 0), ray, Vector(1,0,1), 0., 0., 1.);
-    Sphere W_floor(Vector(0, - (ray + floor_distance), 0), ray, Vector(1,0,0), 0.3, 0., 1.);
+    Sphere W_floor(Vector(0, - (ray + floor_distance), 0), ray, Vector(1,0,0), 0., 0., 1.); // can put 0.3
     Sphere W_roof(Vector(0, (ray + roof_distance), 0), ray, Vector(0,1,1), 0., 0., 1.);
     Sphere W_back(Vector(0, 0, - (ray + back_distance / 2)), ray, Vector(0,1,0), 0., 0., 1.);
     Sphere W_front(Vector(0, 0, (ray + front_distance / 2)), ray, Vector(1,1,0), 0., 0., 1.);
@@ -69,10 +72,10 @@ int main() {
     
     Sphere S_4(Vector(2, 0, 20), 4, Vector(0.5, 0.5, 1), 1., 1., 1.4);
     
-    mainScene.addSphere(S_1);
-    mainScene.addSphere(S_2);
+    // mainScene.addSphere(S_1);
+    // mainScene.addSphere(S_2);
     mainScene.addSphere(S_3);
-    mainScene.addSphere(S_4);
+    // mainScene.addSphere(S_4);
     mainScene.addSphere(W_left);
     mainScene.addSphere(W_right);
     mainScene.addSphere(W_floor);
@@ -85,9 +88,34 @@ int main() {
     
     // std::time_t raytracerTime = std::time(nullptr);
     // Raytracing
+//#pragma omp parallel for schedule(dynamic, 1)
     std::vector<unsigned char> image(W*H * 3, 0);
     for (int i = 0; i < H; i++) {
         for (int j = 0; j < W; j++) {
+            
+            /*double sigma = 0.25;
+            
+            Vector color;
+            
+            int N_iter_antialiasing = 1;
+            
+            for (int i = 0; i < N_iter_antialiasing; i++)
+            {
+                double u1 = uniform(engine);
+                double u2 = uniform(engine);
+                
+                double x1 = sigma * cos(2*M_PI*u1) * sqrt(-2 * log(u2));
+                double x2 = sigma * sin(2*M_PI*u1) * sqrt(-2 * log(u2));
+                
+                Vector u(j - W / 2 + x2, i - H / 2 + x1,  - W / (2. * tan(fov / 2)));
+                
+                u.normalize();
+                
+                Ray r(C,u);
+                
+                color = mainScene.intersects(r, 0) / N_iter_antialiasing;
+            }*/
+            
             Vector u(j - W / 2, i - H / 2,  - W / (2. * tan(fov / 2)));
             
             u.normalize();
