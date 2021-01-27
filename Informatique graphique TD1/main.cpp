@@ -19,9 +19,15 @@
 #include <algorithm>
 #include <cmath>
 
+#include "math.h"
+
 #include "objects.hpp"
- 
+#include "integral.hpp"
+
+#include <random>
+
 int main() {
+    // Integral::integral4Dcos2(100000);
     auto start = std::chrono::high_resolution_clock::now();
     int W = 512;
     int H = 512;

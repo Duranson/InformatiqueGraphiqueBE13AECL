@@ -179,6 +179,7 @@ Vector Scene::intersects(Ray r, int bounds)
 {
     // Adapter le code suivant à la structure de Scene -> itérer sur les sphères et prendre les P et N constants (source de lumiere)
     if (bounds > 5)
+        // Too much bounds, need to escape this loop
         return Vector(0,0,0);
     std::vector<double> distances = {};
     for (Sphere& s : objects)
@@ -208,17 +209,21 @@ Vector Scene::intersects(Ray r, int bounds)
         distances.push_back(t);
     }
     int i = std::min_element(distances.begin(), distances.end()) - distances.begin();
+    // Distance to the intersection
     double t = *std::min_element(distances.begin(),distances.end());
     if (t >= 1e4)
     {
         return Vector(0,0,0);
     }
     Vector color(0,0,0);
+    // Sphere collided
     Sphere s = objects[i];
     Vector P = r.C + r.u * t;
+    // Normal to the intersection point
     Vector N = (P - s.O);
     N.normalize();
-    bool inside_the_colliding_sphere = ( N.dot(r.u) > 0);
+    bool inside_the_colliding_sphere = ( N.dot(r.u) > 0); // Hope not
+    // Calculate primary color
     if (is_shadowed(P, light.position))
     {
         color = Vector(0,0,0);
@@ -231,6 +236,9 @@ Vector Scene::intersects(Ray r, int bounds)
         double fact = light.intensity / (4 * M_PI * d);
         color = s.rho / M_PI * (std::max(N.dot(PL) , 0.) * fact);
     }
+    // Add secondary illumination with recursivity
+    
+    // Add reflexion to color
     if (s.reflexion > 0.01)
     {
         Vector up = r.u - N * r.u.dot(N) * 2.;
@@ -239,6 +247,7 @@ Vector Scene::intersects(Ray r, int bounds)
         Ray rp(P + up * eps, up);
         color = ( color * (1 - s.reflexion)  + intersects(rp, bounds + 1) * s.reflexion );
     }
+    // Add transparancy to color
     if (s.transparancy > 0.01)
     {
         double n1 = 1;
