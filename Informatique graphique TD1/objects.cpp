@@ -187,8 +187,9 @@ bool Scene::is_shadowed(Vector P, Vector L)
 
 Vector Scene::intersects(Ray r, int bounds)
 {
+    int max_bounds = 5;
     // Adapter le code suivant à la structure de Scene -> itérer sur les sphères et prendre les P et N constants (source de lumiere)
-    if (bounds > 5)
+    if (bounds > max_bounds)
         // Too much bounds, need to escape this loop
         return Vector(0,0,0);
     std::vector<double> distances = {};
@@ -249,55 +250,39 @@ Vector Scene::intersects(Ray r, int bounds)
     
     // Add secondary illumination with recursivity
     
-    int N_iter = 100;
-    if (bounds > 0)
+    double r1 = uniform(engine);
+    double r2 = uniform(engine);
+    
+    double x = cos(2*M_PI*r1) * sqrt(1 - r2);
+    double y = sin(2*M_PI*r1) * sqrt(1 - r2);
+    double z = sqrt(r2);
+    
+    Vector T1;
+    
+    if ( N[0] < N[1] && N[0] < N[2] )
     {
-        // Same as mirror with rho factor
-        Vector up = r.u - N * r.u.dot(N) * 2.;
-        up.normalize();
-        double eps = 1e-4;
-        Ray rp(P + up * eps, up);
-        color = color + s.rho * intersects(rp, bounds + 1);
+        T1 = Vector(0, - N[2], N[1]);
     }
     else
     {
-        for (int i = 0; i < N_iter; i++)
+        if ( N[1] < N[0] && N[1] < N[2] )
         {
-            double r1 = uniform(engine);
-            double r2 = uniform(engine);
-            
-            double x = cos(2*M_PI*r1) * sqrt(1 - r2);
-            double y = sin(2*M_PI*r1) * sqrt(1 - r2);
-            double z = sqrt(r2);
-            
-            Vector T1;
-            
-            if ( N[0] < N[1] && N[0] < N[2] )
-            {
-                T1 = Vector(0, - N[2], N[1]);
-            }
-            else
-            {
-                if ( N[1] < N[0] && N[1] < N[2] )
-                {
-                    T1 = Vector( N[2], 0, - N[0]);
-                }
-                else
-                {
-                    T1 = Vector( - N[1], N[0], 0);
-                }
-            }
-            
-            Vector T2 = N.cross(T1);
-            
-            Vector up = N * z - T1 * x - T2 * y;
-            
-            double eps = 1e-3;
-            Ray wi(P + up * eps, up);
-            
-            color = color + s.rho * intersects(wi, bounds + 1) / N_iter;
+            T1 = Vector( N[2], 0, - N[0]);
+        }
+        else
+        {
+            T1 = Vector( - N[1], N[0], 0);
         }
     }
+    
+    Vector T2 = N.cross(T1);
+    
+    Vector up = N * z - T1 * x - T2 * y;
+    
+    double eps = 1e-3;
+    Ray wi(P + up * eps, up);
+    
+    color = color + s.rho * intersects(wi, bounds + 1);
     
     // Add reflexion to color
     if (s.reflexion > 0.01)
