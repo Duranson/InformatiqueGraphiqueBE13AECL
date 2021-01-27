@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 
-#include "objects.hpp"
+#include "scene.hpp"
 
 class Integral
 {

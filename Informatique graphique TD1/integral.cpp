@@ -15,7 +15,7 @@
 
 #include "math.h"
 
-#include "objects.hpp"
+#include "scene.hpp"
 
 #include <random>
 static std::default_random_engine engine(10) ; // random seed = 10

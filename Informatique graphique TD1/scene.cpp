@@ -5,135 +5,24 @@
 //  Created by Fabien Duranson on 06/01/2021.
 //
 
-#include "objects.hpp"
+#include "scene.hpp"
 #include "math.h"
 
 #include "integral.hpp"
+
+#include "vector_obj.hpp"
+#include "ray_obj.hpp"
+#include "sphere_obj.hpp"
+#include "light_obj.hpp"
+
 #include <random>
 static std::default_random_engine engine(10) ; // random seed = 10
 static std::uniform_real_distribution<double> uniform(0, 1);
-
-Vector::Vector(double x, double y, double z)
-{
-    coord[0] = x;
-    coord[1] = y;
-    coord[2] = z;
-};
-
-double Vector::sqrnorm()
-{
-    return coord[0] * coord[0] + coord[1] * coord[1] + coord[2] * coord[2];
-};
-
-Vector Vector::operator+(const Vector v)
-{
-    return Vector(coord[0] + v.coord[0], coord[1] + v.coord[1], coord[2] + v.coord[2]);
-};
-
-Vector Vector::operator-(const Vector v)
-{
-    return Vector(coord[0] - v.coord[0], coord[1] - v.coord[1], coord[2] - v.coord[2]);
-};
-
-Vector Vector::operator-()
-{
-    return Vector( - coord[0], - coord[1], - coord[2]);
-};
-
-Vector Vector::operator*(double a)
-{
-    return Vector(coord[0] * a, coord[1] * a, coord[2] * a);
-};
-
-Vector Vector::operator*(Vector v)
-{
-    return Vector(v[0] * coord[0], v[1] * coord[1], v[2] * coord[2]);
-};
-
-Vector Vector::operator/(double a)
-{
-    return Vector( coord[0] / a, coord[1] / a, coord[2] / a );
-};
 
 double dot(Vector a, Vector b)
 {
     return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 };
-
-double Vector::dot(Vector b)
-{
-    return coord[0] * b[0] + coord[1] * b[1] + coord[2] * b[2];
-};
-
-void Vector::normalize()
-{
-    double norm = sqrt(sqrnorm());
-    coord[0] = coord[0] / norm;
-    coord[1] = coord[1] / norm;
-    coord[2] = coord[2] / norm;
-};
-
-Vector Vector::cross(Vector v)
-{
-    return Vector(coord[1] * v[2] - coord[2] * v[1], coord[2] * v[0] - coord[0] * v[2], coord[0] * v[1] - coord[1] * v[0]);
-}
-
-Sphere::Sphere()
-{
-    O = Vector();
-    R = 0.;
-    rho = Vector();
-    reflexion = 0;
-};
-
-Sphere::Sphere(Vector o, double r, Vector _rho, double refl, double tr, double _n)
-{
-    O = o;
-    R = r;
-    rho = _rho;
-    reflexion = refl;
-    transparancy = tr;
-    n = _n;
-};
-
-Ray::Ray(Vector _C, Vector _u)
-{
-    C = _C;
-    u = _u;
-};
-
-bool Sphere::intersect(Ray r)
-{
-    double b = 2 * dot(r.u, r.C - O);
-    double c = (r.C - O).sqrnorm() - R * R;
-    double det = b * b - 4 * c;          // a = 1 because r.u is normalized
-    return det >= 0;
-}
-
-bool Sphere::intersect(Ray r, Vector& P, Vector& N)
-{
-    double b = 2 * dot(r.u, r.C - O);
-    double c = (r.C - O).sqrnorm() - R * R;
-    double det = b * b - 4 * c;          // a = 1 because r.u is normalized
-    if (det < 0) return false;
-    
-    double t;
-    
-    double sqrDelta = sqrt(det);
-    double t2 = ( - b + sqrDelta) / 2;
-    if (t2 < 0) return false;
-    double t1 = ( - b - sqrDelta) / 2;
-    if (t1 > 0)
-    {
-        t = t1;
-    } else {
-        t = t2;
-    };
-    P = r.C + r.u * t;
-    N = (P - O);
-    N.normalize();
-    return true;
-}
 
 Scene::Scene(Light l)
 {
@@ -188,7 +77,7 @@ bool Scene::is_shadowed(Vector P, Vector L)
 Vector Scene::intersects(Ray r, int bounds)
 {
     int max_bounds = 5;
-    // Adapter le code suivant à la structure de Scene -> itérer sur les sphères et prendre les P et N constants (source de lumiere)
+    
     if (bounds > max_bounds)
         // Too much bounds, need to escape this loop
         return Vector(0,0,0);
@@ -312,23 +201,4 @@ Vector Scene::intersects(Ray r, int bounds)
         color = ( color * (1 - s.transparancy)  + intersects(rp, bounds + 1) * s.transparancy );
     }
     return color;
-}
-
-Light::Light()
-{
-    position = Vector();
-    intensity = 0;
-}
-
-Light::Light( Vector pos, int intens)
-{
-    position = pos;
-    intensity = intens;
-}
-
-Vector::Vector()
-{
-    coord[0] = 0;
-    coord[1] = 0;
-    coord[2] = 0;
 }

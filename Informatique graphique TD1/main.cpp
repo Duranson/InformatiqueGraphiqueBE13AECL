@@ -21,7 +21,7 @@
 
 #include "math.h"
 
-#include "objects.hpp"
+#include "scene.hpp"
 #include "integral.hpp"
 
 #include <random>
