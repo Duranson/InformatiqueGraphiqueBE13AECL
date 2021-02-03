@@ -19,7 +19,7 @@ Sphere::Sphere()
     reflexion = 0;
 };
 
-Sphere::Sphere(Vector o, double r, Vector _rho, double refl, double tr, double _n)
+Sphere::Sphere(Vector o, double r, Vector _rho, double refl, double tr, double _n, double emmiss)
 {
     O = o;
     R = r;
@@ -27,6 +27,7 @@ Sphere::Sphere(Vector o, double r, Vector _rho, double refl, double tr, double _
     reflexion = refl;
     transparancy = tr;
     n = _n;
+    emmissivity = emmiss;
 };
 
 bool Sphere::intersect(Ray r)

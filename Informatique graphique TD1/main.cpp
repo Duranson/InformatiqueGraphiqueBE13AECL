@@ -42,8 +42,9 @@ int main() {
     double fov = 60 * M_PI / 180; // field of view
     
     // Create the light of the scene
-    //Light mainLight(Vector(-10, 20, 40) ,1e7);
-    Light mainLight(Vector(-10, 20, 40) , 2e9);
+    Light mainLight(Vector(-10, 20, 40), 15, 2e9);
+    
+    Sphere light(mainLight.object.O, 15, Vector(1,1,1), 0., 0., 1., 2e9);
     
     Scene mainScene(mainLight);
     
@@ -58,24 +59,28 @@ int main() {
     double roof_distance = 41; // All lights should be inside
     double ray = 1000; // Should be big for the walls to appear flat
     
-    Sphere W_left(Vector( - (ray + horizontal_distance), 0, 0), ray, Vector(0,0,1), 0., 0., 1.);
-    Sphere W_right(Vector((ray + horizontal_distance), 0, 0), ray, Vector(1,0,1), 0., 0., 1.);
-    Sphere W_floor(Vector(0, - (ray + floor_distance), 0), ray, Vector(1,0,0), 0., 0., 1.); // can put 0.3
-    Sphere W_roof(Vector(0, (ray + roof_distance), 0), ray, Vector(0,1,1), 0., 0., 1.);
-    Sphere W_back(Vector(0, 0, - (ray + back_distance / 2)), ray, Vector(0,1,0), 0., 0., 1.);
-    Sphere W_front(Vector(0, 0, (ray + front_distance / 2)), ray, Vector(1,1,0), 0., 0., 1.);
+    Sphere W_left(Vector( - (ray + horizontal_distance), 0, 0), ray, Vector(0,0,1), 0., 0., 1., 0.);
+    Sphere W_right(Vector((ray + horizontal_distance), 0, 0), ray, Vector(1,0,1), 0., 0., 1., 0.);
+    Sphere W_floor(Vector(0, - (ray + floor_distance), 0), ray, Vector(1,0,0), 0., 0., 1., 0.); // can put 0.3
+    Sphere W_roof(Vector(0, (ray + roof_distance), 0), ray, Vector(0,1,1), 0., 0., 1., 0.);
+    Sphere W_back(Vector(0, 0, - (ray + back_distance / 2)), ray, Vector(0,1,0), 0., 0., 1., 0.);
+    Sphere W_front(Vector(0, 0, (ray + front_distance / 2)), ray, Vector(1,1,0), 0., 0., 1., 0.);
     
-    // Spheres (position, radius, color, reflexion, transparancy, n index)
-    Sphere S_1(Vector(7, -3, 2), 6, Vector(1, 1, 1), 1., 0., 1.);
-    Sphere S_2(Vector(-7, -3, 2), 6, Vector(1, 1, 1), 1., 0., 1.);
-    Sphere S_3(Vector(0, 5, 0), 8, Vector(1, 0, 0), 0., 0., 1.);
+    // Spheres (position, radius, color, reflexion, transparancy, n index, emmissivity)
+    Sphere S_1(Vector(7, -3, 2), 6, Vector(1, 1, 1), 1., 0., 1., 0.);
+    Sphere S_2(Vector(-7, -3, 2), 6, Vector(1, 1, 1), 1., 0., 1., 0.);
+    Sphere S_3(Vector(0, 5, 0), 8, Vector(1, 0, 0), 0., 0., 1., 0.);
     
-    Sphere S_4(Vector(2, 0, 20), 4, Vector(0.5, 0.5, 1), 1., 1., 1.4);
+    Sphere S_4(Vector(2, 0, 20), 4, Vector(0.5, 0.5, 1), 1., 1., 1.4, 0.);
     
-    // mainScene.addSphere(S_1);
-    // mainScene.addSphere(S_2);
+    Sphere S_5(Vector(10, 10, 25), 8, Vector(0.5, 0.5, 1), 0., 0., 1., 0.);
+    
+    mainScene.addSphere(light);
+    //mainScene.addSphere(S_1);
+    //mainScene.addSphere(S_2);
     mainScene.addSphere(S_3);
-    // mainScene.addSphere(S_4);
+    //mainScene.addSphere(S_4);
+    //mainScene.addSphere(S_5);
     mainScene.addSphere(W_left);
     mainScene.addSphere(W_right);
     mainScene.addSphere(W_floor);

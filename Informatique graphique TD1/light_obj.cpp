@@ -11,12 +11,10 @@
 
 Light::Light()
 {
-    position = Vector();
-    intensity = 0;
+    object = Sphere(Vector(), 15, Vector(1,1,1), 0., 0., 1., 0);
 }
 
-Light::Light( Vector pos, int intens)
+Light::Light( Vector pos, double ray, int intens)
 {
-    position = pos;
-    intensity = intens;
+    object = Sphere(pos, ray, Vector(1,1,1), 0., 0., 1., intens);
 }

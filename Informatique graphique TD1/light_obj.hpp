@@ -11,14 +11,14 @@
 #include <stdio.h>
 
 #include "vector_obj.hpp"
+#include "sphere_obj.hpp"
 
 class Light
 {
 public:
-    Vector position;
-    int intensity;
+    Sphere object;
     Light();
-    Light(Vector position, int intensity);
+    Light(Vector position, double ray, int intensity);
 };
 
 #endif /* light_obj_hpp */

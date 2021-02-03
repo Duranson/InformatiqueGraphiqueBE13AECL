@@ -22,8 +22,9 @@ public:
     double reflexion;
     double transparancy;
     double n;
+    double emmissivity;
     Sphere();
-    Sphere(Vector o, double r, Vector _rho, double refl, double tr, double _n);
+    Sphere(Vector o, double r, Vector _rho, double refl, double tr, double _n, double emmiss);
     bool intersect(Ray);
     bool intersect(Ray, Vector&, Vector&);
 };

@@ -124,7 +124,7 @@ Vector Scene::intersects(Ray r, int bounds)
     N.normalize();
     bool inside_the_colliding_sphere = ( N.dot(r.u) > 0); // Hope not
     // Calculate primary color
-    if (is_shadowed(P, light.position))
+    /*if (is_shadowed(P, light.position))
     {
         color = Vector(0,0,0);
     }
@@ -135,6 +135,11 @@ Vector Scene::intersects(Ray r, int bounds)
         PL.normalize();
         double fact = light.intensity / (4 * M_PI * d);
         color = s.rho / M_PI * (std::max(N.dot(PL) , 0.) * fact);
+    }*/
+    
+    if (s.emmissivity > 0)
+    {
+        return s.rho * s.emmissivity / (4 * M_PI * M_PI * s.R * s.R);;
     }
     
     // Add secondary illumination with recursivity
