@@ -26,7 +26,7 @@ class Scene
 public:
     std::vector<Sphere> objects;
     Light light;
-    Vector intersects(Ray, int bounds);    // returns the color
+    Vector intersects(Ray, int bounds, bool diffus);    // returns the color
     bool is_shadowed(Vector, Vector);
     void addSphere(Sphere S);
     Scene();

@@ -38,8 +38,11 @@ int main() {
     // std::time_t sceneCreation = std::time(nullptr);
     
     // Creation of the camera
-    Vector C(0,3,55);
+    Vector C(0,0,55);
     double fov = 60 * M_PI / 180; // field of view
+    
+    double distance_plan_mise_au_point = 30;
+    double ouverture = 1;
     
     // Create the light of the scene (list position, intensity)
     Light mainLight(0, 2e9);
@@ -49,7 +52,6 @@ int main() {
     Scene mainScene(mainLight);
     
     // Add elements to the scene
-    
     // Walls
     
     double horizontal_distance = 40; // All lights should be inside
@@ -69,18 +71,18 @@ int main() {
     // Spheres (position, radius, color, reflexion, transparancy, n index, emmissivity)
     Sphere S_1(Vector(7, -3, 2), 6, Vector(1, 1, 1), 1., 0., 1., 0.);
     Sphere S_2(Vector(-7, -3, 2), 6, Vector(1, 1, 1), 1., 0., 1., 0.);
-    Sphere S_3(Vector(0, 5, 0), 8, Vector(1, 1, 1), 0., 0., 1., 0.);
+    Sphere S_3(Vector(0, 5, 0), 8, Vector(1, 0, 0), 0., 0., 1., 0.);
     
     Sphere S_4(Vector(2, 0, 20), 4, Vector(0.5, 0.5, 1), 1., 1., 1.4, 0.);
     
     Sphere S_5(Vector(10, 10, 25), 8, Vector(0.5, 0.5, 1), 0., 0., 1., 0.);
     
     mainScene.addSphere(light);
-    //mainScene.addSphere(S_1);
-    //mainScene.addSphere(S_2);
+    mainScene.addSphere(S_1);
+    mainScene.addSphere(S_2);
     mainScene.addSphere(S_3);
-    //mainScene.addSphere(S_4);
-    //mainScene.addSphere(S_5);
+    mainScene.addSphere(S_4);
+    mainScene.addSphere(S_5);
     mainScene.addSphere(W_left);
     mainScene.addSphere(W_right);
     mainScene.addSphere(W_floor);
@@ -116,9 +118,18 @@ int main() {
                 
                 u.normalize();
                 
-                Ray r(C,u);
+                Vector target_point = C + u * distance_plan_mise_au_point;
                 
-                color = color + mainScene.intersects(r, 0);
+                //Ray r(C,u); // rayon depuis le centre de l'ouverture
+                
+                Vector Cp = Integral::random_origin(ouverture, C[2]);
+                
+                Vector up = target_point - Cp;
+                up.normalize();
+                
+                Ray r(Cp,up); // rayon depuis le centre de l'ouverture
+                
+                color = color + mainScene.intersects(r, 0, false);
             }
             
             color = color / N_iter;

@@ -74,7 +74,7 @@ bool Scene::is_shadowed(Vector P, Vector L)
     return false;
 }
 
-Vector Scene::intersects(Ray r, int bounds)
+Vector Scene::intersects(Ray r, int bounds, bool last_diffuse)
 {
     int max_bounds = 5;
     
@@ -111,7 +111,7 @@ Vector Scene::intersects(Ray r, int bounds)
     int i = std::min_element(distances.begin(), distances.end()) - distances.begin();
     // Distance to the intersection
     double t = *std::min_element(distances.begin(),distances.end());
-    if (t >= 1e4)
+    if (t >= 1e5)
     {
         return Vector(0,0,0);
     }
@@ -121,10 +121,9 @@ Vector Scene::intersects(Ray r, int bounds)
     
     if (i == light.position)
     {
-        if (bounds == 0)
-            return Vector(1,1,1);
+        if (!last_diffuse)
+            return s.rho;
         return Vector(0,0,0);
-        // return s.rho * light.intensity / (4 * M_PI * M_PI * s.R * s.R);
     }
     
     Vector P = r.C + r.u * t;
@@ -158,11 +157,10 @@ Vector Scene::intersects(Ray r, int bounds)
     // Add secondary illumination with recursivity
     
     Vector up = Integral::random_cos(N);
-    
     double eps = 1e-3;
     Ray wi(P + up * eps, up);
     
-    color = color + s.rho * intersects(wi, bounds + 1);
+    color = color + s.rho * intersects(wi, bounds + 1, true);
     
     // Add reflexion to color
     if (s.reflexion > 0.01)
@@ -171,7 +169,7 @@ Vector Scene::intersects(Ray r, int bounds)
         up.normalize();
         double eps = 1e-4;
         Ray rp(P + up * eps, up);
-        color = ( color * (1 - s.reflexion)  + intersects(rp, bounds + 1) * s.reflexion );
+        color = ( color * (1 - s.reflexion)  + intersects(rp, bounds + 1, false) * s.reflexion );
     }
     // Add transparancy to color
     if (s.transparancy > 0.01)
@@ -189,7 +187,7 @@ Vector Scene::intersects(Ray r, int bounds)
         
         double eps = 1e-4;
         Ray rp(P + refracted * eps, refracted);
-        color = ( color * (1 - s.transparancy)  + intersects(rp, bounds + 1) * s.transparancy );
+        color = ( color * (1 - s.transparancy)  + intersects(rp, bounds + 1, false) * s.transparancy );
     }
     return color;
 }

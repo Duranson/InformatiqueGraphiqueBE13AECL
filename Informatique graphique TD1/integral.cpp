@@ -61,6 +61,17 @@ Vector Integral::random_cos(Vector N)
     return up;
 }
 
+Vector Integral::random_origin(double R, double z)
+{
+    double r = uniform(engine) * R;
+    double theta = uniform(engine) * 2 * M_PI;
+    
+    double x = r * cos(theta);
+    double y = r * sin(theta);
+    
+    return Vector(x,y,z);
+}
+
 double Integral::integral4Dcos2(int N_iter)
 {
     double center = 0.;
@@ -103,7 +114,7 @@ Vector Integral::integralHemisphereScene(Scene& scene, Sphere sphere, Ray r, Vec
         up.normalize();
         double eps = 1e-4;
         Ray rp(P + up * eps, up);
-        color = color + sphere.rho * scene.intersects(rp, bounds + 1);
+        color = color + sphere.rho * scene.intersects(rp, bounds + 1, false);
         return color;
     }
     for (int i = 0; i < N_iter; i++)
@@ -113,7 +124,7 @@ Vector Integral::integralHemisphereScene(Scene& scene, Sphere sphere, Ray r, Vec
         double eps = 1e-3;
         Ray wi(up, P + up * eps);
         
-        color = color + sphere.rho * scene.intersects(wi, bounds + 1);
+        color = color + sphere.rho * scene.intersects(wi, bounds + 1, false);
     }
     return color;
 }
