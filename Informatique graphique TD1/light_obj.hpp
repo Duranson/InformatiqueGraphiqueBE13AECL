@@ -16,9 +16,10 @@
 class Light
 {
 public:
-    Sphere object;
+    int position;
+    double intensity;
     Light();
-    Light(Vector position, double ray, int intensity);
+    Light(int list_position, int intensity);
 };
 
 #endif /* light_obj_hpp */

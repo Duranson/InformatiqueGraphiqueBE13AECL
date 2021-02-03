@@ -118,60 +118,46 @@ Vector Scene::intersects(Ray r, int bounds)
     Vector color(0,0,0);
     // Sphere collided
     Sphere s = objects[i];
+    
+    if (i == light.position)
+    {
+        if (bounds == 0)
+            return Vector(1,1,1);
+        return Vector(0,0,0);
+        // return s.rho * light.intensity / (4 * M_PI * M_PI * s.R * s.R);
+    }
+    
     Vector P = r.C + r.u * t;
     // Normal to the intersection point
     Vector N = (P - s.O);
     N.normalize();
-    bool inside_the_colliding_sphere = ( N.dot(r.u) > 0); // Hope not
+    bool inside_the_colliding_sphere = ( N.dot(r.u) > 0);
+    
     // Calculate primary color
-    /*if (is_shadowed(P, light.position))
+    Vector PL = objects[light.position].O - P;
+    PL.normalize();
+    Vector w = Integral::random_cos(-PL);
+    Vector xprime = w * objects[light.position].R + objects[light.position].O;
+    
+    Vector Pxprime = xprime - P;
+    double d = sqrt(Pxprime.sqrnorm());
+    Pxprime.normalize();
+    
+    if (is_shadowed(P, xprime))
     {
         color = Vector(0,0,0);
     }
     else
     {
-        Vector PL = light.position - P;
-        double d = PL.sqrnorm();
-        PL.normalize();
-        double fact = light.intensity / (4 * M_PI * d);
-        color = s.rho / M_PI * (std::max(N.dot(PL) , 0.) * fact);
-    }*/
-    
-    if (s.emmissivity > 0)
-    {
-        return s.rho * s.emmissivity / (4 * M_PI * M_PI * s.R * s.R);;
+        double fact = light.intensity / (4 * M_PI * M_PI * objects[light.position].R * objects[light.position].R);
+        double proba = std::max(- PL.dot(w), 0.) / (M_PI * objects[light.position].R * objects[light.position].R);
+        double Jacob = std::max(w.dot(- Pxprime), 0.) / (d * d);
+        color = s.rho / M_PI * (std::max(N.dot(PL) , 0.) * (Jacob / proba)  * fact);
     }
     
     // Add secondary illumination with recursivity
     
-    double r1 = uniform(engine);
-    double r2 = uniform(engine);
-    
-    double x = cos(2*M_PI*r1) * sqrt(1 - r2);
-    double y = sin(2*M_PI*r1) * sqrt(1 - r2);
-    double z = sqrt(r2);
-    
-    Vector T1;
-    
-    if ( N[0] < N[1] && N[0] < N[2] )
-    {
-        T1 = Vector(0, - N[2], N[1]);
-    }
-    else
-    {
-        if ( N[1] < N[0] && N[1] < N[2] )
-        {
-            T1 = Vector( N[2], 0, - N[0]);
-        }
-        else
-        {
-            T1 = Vector( - N[1], N[0], 0);
-        }
-    }
-    
-    Vector T2 = N.cross(T1);
-    
-    Vector up = N * z - T1 * x - T2 * y;
+    Vector up = Integral::random_cos(N);
     
     double eps = 1e-3;
     Ray wi(P + up * eps, up);

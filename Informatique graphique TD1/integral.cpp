@@ -26,6 +26,41 @@ double Integral::p_normal(double x, double sigma, double center)
     return exp(- (x - center) * (x - center) / (2 * sigma * sigma)) / (sigma * sqrt(2 * M_PI));
 }
 
+Vector Integral::random_cos(Vector N)
+{
+    double r1 = uniform(engine);
+    double r2 = uniform(engine);
+    
+    double x = cos(2*M_PI*r1) * sqrt(1 - r2);
+    double y = sin(2*M_PI*r1) * sqrt(1 - r2);
+    double z = sqrt(r2);
+    
+    Vector T1;
+    
+    if ( N[0] < N[1] && N[0] < N[2] )
+    {
+        T1 = Vector(0, - N[2], N[1]);
+    }
+    else
+    {
+        if ( N[1] < N[0] && N[1] < N[2] )
+        {
+            T1 = Vector( - N[2], 0, N[0]);
+        }
+        else
+        {
+            T1 = Vector( - N[1], N[0], 0);
+        }
+    }
+    T1.normalize();
+    
+    Vector T2 = N.cross(T1);
+    
+    Vector up = N * z - T1 * x - T2 * y;
+    
+    return up;
+}
+
 double Integral::integral4Dcos2(int N_iter)
 {
     double center = 0.;
@@ -73,34 +108,7 @@ Vector Integral::integralHemisphereScene(Scene& scene, Sphere sphere, Ray r, Vec
     }
     for (int i = 0; i < N_iter; i++)
     {
-        double r1 = uniform(engine);
-        double r2 = uniform(engine);
-        
-        double x = cos(2*M_PI*r1) * sqrt(1 - r2);
-        double y = sin(2*M_PI*r1) * sqrt(1 - r2);
-        double z = sqrt(r2);
-        
-        Vector T1;
-        
-        if ( N[0] < N[1] && N[0] < N[2] )
-        {
-            T1 = Vector(0, - N[2], N[1]);
-        }
-        else
-        {
-            if ( N[1] < N[0] && N[1] < N[2] )
-            {
-                T1 = Vector( - N[2], 0, N[0]);
-            }
-            else
-            {
-                T1 = Vector( - N[1], N[0], 0);
-            }
-        }
-        
-        Vector T2 = N.cross(T1);
-        
-        Vector up = N * z - T1 * x - T2 * y;
+        Vector up = random_cos(N);
         
         double eps = 1e-3;
         Ray wi(up, P + up * eps);

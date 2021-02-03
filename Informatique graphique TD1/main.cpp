@@ -41,10 +41,10 @@ int main() {
     Vector C(0,3,55);
     double fov = 60 * M_PI / 180; // field of view
     
-    // Create the light of the scene
-    Light mainLight(Vector(-10, 20, 40), 15, 2e9);
+    // Create the light of the scene (list position, intensity)
+    Light mainLight(0, 2e9);
     
-    Sphere light(mainLight.object.O, 15, Vector(1,1,1), 0., 0., 1., 2e9);
+    Sphere light( Vector(-10, 20, 40), 5, Vector(1,1,1), 0., 0., 1., 2e9);
     
     Scene mainScene(mainLight);
     
@@ -61,7 +61,7 @@ int main() {
     
     Sphere W_left(Vector( - (ray + horizontal_distance), 0, 0), ray, Vector(0,0,1), 0., 0., 1., 0.);
     Sphere W_right(Vector((ray + horizontal_distance), 0, 0), ray, Vector(1,0,1), 0., 0., 1., 0.);
-    Sphere W_floor(Vector(0, - (ray + floor_distance), 0), ray, Vector(1,0,0), 0., 0., 1., 0.); // can put 0.3
+    Sphere W_floor(Vector(0, - (ray + floor_distance), 0), ray, Vector(1,1,1), 0., 0., 1., 0.); // can put 0.3
     Sphere W_roof(Vector(0, (ray + roof_distance), 0), ray, Vector(0,1,1), 0., 0., 1., 0.);
     Sphere W_back(Vector(0, 0, - (ray + back_distance / 2)), ray, Vector(0,1,0), 0., 0., 1., 0.);
     Sphere W_front(Vector(0, 0, (ray + front_distance / 2)), ray, Vector(1,1,0), 0., 0., 1., 0.);
@@ -69,7 +69,7 @@ int main() {
     // Spheres (position, radius, color, reflexion, transparancy, n index, emmissivity)
     Sphere S_1(Vector(7, -3, 2), 6, Vector(1, 1, 1), 1., 0., 1., 0.);
     Sphere S_2(Vector(-7, -3, 2), 6, Vector(1, 1, 1), 1., 0., 1., 0.);
-    Sphere S_3(Vector(0, 5, 0), 8, Vector(1, 0, 0), 0., 0., 1., 0.);
+    Sphere S_3(Vector(0, 5, 0), 8, Vector(1, 1, 1), 0., 0., 1., 0.);
     
     Sphere S_4(Vector(2, 0, 20), 4, Vector(0.5, 0.5, 1), 1., 1., 1.4, 0.);
     
@@ -93,7 +93,7 @@ int main() {
     
     // std::time_t raytracerTime = std::time(nullptr);
     // Raytracing
-//#pragma omp parallel for schedule(dynamic, 1)
+#pragma omp parallel for schedule(dynamic, 1)
     std::vector<unsigned char> image(W*H * 3, 0);
     for (int i = 0; i < H; i++) {
         for (int j = 0; j < W; j++) {
