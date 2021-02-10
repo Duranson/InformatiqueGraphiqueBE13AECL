@@ -26,13 +26,13 @@ double dot(Vector a, Vector b)
 
 Scene::Scene(Light l)
 {
-    objects = std::vector<Sphere>();
+    objects = std::vector<Object*>();
     light = l;
 }
 
-void Scene::addSphere(Sphere S)
+void Scene::addSphere(Object* o)
 {
-    objects.push_back(S);
+    objects.push_back(o);
 }
 
 bool Scene::is_shadowed(Vector P, Vector L)
@@ -43,30 +43,10 @@ bool Scene::is_shadowed(Vector P, Vector L)
     u.normalize();
     Ray r(P, u);
     
-    for (Sphere& s : objects)
+    Vector N;
+    for (Object* s : objects)
     {
-        double b = 2 * dot(r.u, r.C - s.O);
-        double c = (r.C - s.O).sqrnorm() - s.R * s.R;
-        double det = b * b - 4 * c;          // a = 1 because r.u is normalized
-        double t;
-        if (det >= 0)
-        {
-            double sqrDelta = sqrt(det);
-            double t2 = ( - b + sqrDelta) / 2;
-            if (t2 < 0) t = 1e10;
-            else
-            {
-                double t1 = ( - b - sqrDelta) / 2;
-                if (t1 > 0)
-                {
-                    t = t1;
-                } else {
-                    t = t2;
-                };
-            }
-        } else {
-            t = 1e10;
-        }
+        double t = s->intersect(r,N);
         double eps = 0.01;
         if (t > eps && t < (1 - eps) * dist)
             return true;
@@ -82,31 +62,13 @@ Vector Scene::intersects(Ray r, int bounds, bool last_diffuse)
         // Too much bounds, need to escape this loop
         return Vector(0,0,0);
     std::vector<double> distances = {};
-    for (Sphere& s : objects)
+    std::vector<Vector> normals = {};
+    for (Object* s : objects)
     {
-        double b = 2 * dot(r.u, r.C - s.O);
-        double c = (r.C - s.O).sqrnorm() - s.R * s.R;
-        double det = b * b - 4 * c;          // a = 1 because r.u is normalized
-        double t;
-        if (det >= 0)
-        {
-            double sqrDelta = sqrt(det);
-            double t2 = ( - b + sqrDelta) / 2;
-            if (t2 < 0) t = 1e10;
-            else
-            {
-                double t1 = ( - b - sqrDelta) / 2;
-                if (t1 > 0)
-                {
-                    t = t1;
-                } else {
-                    t = t2;
-                };
-            }
-        } else {
-            t = 1e10;
-        }
+        Vector N;
+        double t = s->intersect(r, N);
         distances.push_back(t);
+        normals.push_back(N);
     }
     int i = std::min_element(distances.begin(), distances.end()) - distances.begin();
     // Distance to the intersection
@@ -117,27 +79,28 @@ Vector Scene::intersects(Ray r, int bounds, bool last_diffuse)
     }
     Vector color(0,0,0);
     // Sphere collided
-    Sphere s = objects[i];
+    Object* s = objects[i];
     
     if (i == light.position)
     {
         if (!last_diffuse)
-            return s.rho;
+            return s->rho;
         return Vector(0,0,0);
     }
     
     Vector P = r.C + r.u * t;
-    // Normal to the intersection point
-    Vector N = (P - s.O);
+    // Normal to the intersection point (On suppose qu'on l'a déjà par la fonction intersects)
+    Vector N = normals[i];
     N.normalize();
     bool inside_the_colliding_sphere = ( N.dot(r.u) > 0);
     
     // Calculate primary color
-    Vector PL = objects[light.position].O - P;
+    Vector lightOrigin = (dynamic_cast<Sphere*>(objects[light.position])->O);
+    double lightRay = (dynamic_cast<Sphere*>(objects[light.position])->R);
+    Vector PL = lightOrigin - P;
     PL.normalize();
     Vector w = Integral::random_cos(-PL);
-    Vector xprime = w * objects[light.position].R + objects[light.position].O;
-    
+    Vector xprime = w * lightRay + lightOrigin;
     Vector Pxprime = xprime - P;
     double d = sqrt(Pxprime.sqrnorm());
     Pxprime.normalize();
@@ -148,10 +111,11 @@ Vector Scene::intersects(Ray r, int bounds, bool last_diffuse)
     }
     else
     {
-        double fact = light.intensity / (4 * M_PI * M_PI * objects[light.position].R * objects[light.position].R);
-        double proba = std::max(- PL.dot(w), 0.) / (M_PI * objects[light.position].R * objects[light.position].R);
+        double r2 = (dynamic_cast<Sphere*>(objects[light.position])->R);
+        double fact = light.intensity / (4 * M_PI * M_PI * r2 * r2);
+        double proba = std::max(- PL.dot(w), 0.) / (M_PI * r2 * r2);
         double Jacob = std::max(w.dot(- Pxprime), 0.) / (d * d);
-        color = s.rho / M_PI * (std::max(N.dot(PL) , 0.) * (Jacob / proba)  * fact);
+        color = s->rho / M_PI * (std::max(N.dot(PL) , 0.) * (Jacob / proba)  * fact);
     }
     
     // Add secondary illumination with recursivity
@@ -160,22 +124,22 @@ Vector Scene::intersects(Ray r, int bounds, bool last_diffuse)
     double eps = 1e-3;
     Ray wi(P + up * eps, up);
     
-    color = color + s.rho * intersects(wi, bounds + 1, true);
+    color = color + s->rho * intersects(wi, bounds + 1, true);
     
     // Add reflexion to color
-    if (s.reflexion > 0.01)
+    if (s->reflexion > 0.01)
     {
         Vector up = r.u - N * r.u.dot(N) * 2.;
         up.normalize();
         double eps = 1e-4;
         Ray rp(P + up * eps, up);
-        color = ( color * (1 - s.reflexion)  + intersects(rp, bounds + 1, false) * s.reflexion );
+        color = ( color * (1 - s->reflexion)  + intersects(rp, bounds + 1, false) * s->reflexion );
     }
     // Add transparancy to color
-    if (s.transparancy > 0.01)
+    if (s->transparancy > 0.01)
     {
         double n1 = 1;
-        double n2 = s.n;
+        double n2 = s->n;
         if (inside_the_colliding_sphere)
         {
             N = - N;
@@ -187,7 +151,7 @@ Vector Scene::intersects(Ray r, int bounds, bool last_diffuse)
         
         double eps = 1e-4;
         Ray rp(P + refracted * eps, refracted);
-        color = ( color * (1 - s.transparancy)  + intersects(rp, bounds + 1, false) * s.transparancy );
+        color = ( color * (1 - s->transparancy)  + intersects(rp, bounds + 1, false) * s->transparancy );
     }
     return color;
 }

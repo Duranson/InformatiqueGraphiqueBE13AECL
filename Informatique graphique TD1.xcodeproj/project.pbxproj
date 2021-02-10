@@ -10,6 +10,8 @@
 		E906784625A5988700BE6E9C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E906784525A5988700BE6E9C /* main.cpp */; };
 		E90A652925C15C3200892AAC /* integral.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E90A652725C15C3200892AAC /* integral.cpp */; };
 		E920C1E425CAA61F005C6997 /* libomp.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E920C1E325CAA61F005C6997 /* libomp.dylib */; };
+		E9856C1825D3C26C00E60A19 /* mesh_reader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9856C1625D3C26C00E60A19 /* mesh_reader.cpp */; };
+		E9856C1C25D3CFC200E60A19 /* object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9856C1A25D3CFC200E60A19 /* object.cpp */; };
 		E9F8CC7A25C1DE2200D9EC6D /* scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9F8CC7425C1DE2200D9EC6D /* scene.cpp */; };
 		E9F8CC7B25C1DE2200D9EC6D /* vector_obj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9F8CC7525C1DE2200D9EC6D /* vector_obj.cpp */; };
 		E9F8CC7C25C1DE2200D9EC6D /* sphere_obj.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E9F8CC7725C1DE2200D9EC6D /* sphere_obj.cpp */; };
@@ -37,6 +39,10 @@
 		E90A652725C15C3200892AAC /* integral.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = integral.cpp; sourceTree = "<group>"; };
 		E90A652825C15C3200892AAC /* integral.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = integral.hpp; sourceTree = "<group>"; };
 		E920C1E325CAA61F005C6997 /* libomp.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libomp.dylib; path = ../../../../../../../../usr/local/Cellar/llvm/11.0.0_1/lib/libomp.dylib; sourceTree = "<group>"; };
+		E9856C1625D3C26C00E60A19 /* mesh_reader.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = mesh_reader.cpp; sourceTree = "<group>"; };
+		E9856C1725D3C26C00E60A19 /* mesh_reader.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = mesh_reader.hpp; sourceTree = "<group>"; };
+		E9856C1A25D3CFC200E60A19 /* object.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = object.cpp; sourceTree = "<group>"; };
+		E9856C1B25D3CFC200E60A19 /* object.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = object.hpp; sourceTree = "<group>"; };
 		E9F8CC7425C1DE2200D9EC6D /* scene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scene.cpp; sourceTree = "<group>"; };
 		E9F8CC7525C1DE2200D9EC6D /* vector_obj.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vector_obj.cpp; sourceTree = "<group>"; };
 		E9F8CC7625C1DE2200D9EC6D /* scene.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = scene.hpp; sourceTree = "<group>"; };
@@ -96,6 +102,10 @@
 				E906785225A599AB00BE6E9C /* stb_image.hpp */,
 				E90A652725C15C3200892AAC /* integral.cpp */,
 				E90A652825C15C3200892AAC /* integral.hpp */,
+				E9856C1625D3C26C00E60A19 /* mesh_reader.cpp */,
+				E9856C1725D3C26C00E60A19 /* mesh_reader.hpp */,
+				E9856C1A25D3CFC200E60A19 /* object.cpp */,
+				E9856C1B25D3CFC200E60A19 /* object.hpp */,
 			);
 			path = "Informatique graphique TD1";
 			sourceTree = "<group>";
@@ -165,12 +175,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				E9F8CC8125C1DE6300D9EC6D /* light_obj.cpp in Sources */,
+				E9856C1C25D3CFC200E60A19 /* object.cpp in Sources */,
 				E9F8CC7C25C1DE2200D9EC6D /* sphere_obj.cpp in Sources */,
 				E9F8CC7A25C1DE2200D9EC6D /* scene.cpp in Sources */,
 				E9F8CC8525C1DE7700D9EC6D /* ray_obj.cpp in Sources */,
 				E906784625A5988700BE6E9C /* main.cpp in Sources */,
 				E9F8CC7B25C1DE2200D9EC6D /* vector_obj.cpp in Sources */,
 				E90A652925C15C3200892AAC /* integral.cpp in Sources */,
+				E9856C1825D3C26C00E60A19 /* mesh_reader.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

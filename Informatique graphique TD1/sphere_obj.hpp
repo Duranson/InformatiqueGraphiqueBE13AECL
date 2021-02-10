@@ -12,21 +12,22 @@
 
 #include "vector_obj.hpp"
 #include "ray_obj.hpp"
+#include "object.hpp"
 
-class Sphere
+class Sphere : public Object
 {
 public:
     Vector O;
     double R;
-    Vector rho;
+    /*Vector rho;
     double reflexion;
-    double transparancy;
-    double n;
+    double transparancy;*/
+    // double n;
     double emmissivity;
     Sphere();
     Sphere(Vector o, double r, Vector _rho, double refl, double tr, double _n, double emmiss);
-    bool intersect(Ray);
-    bool intersect(Ray, Vector&, Vector&);
+    virtual double intersect(Ray r, Vector& N);
+    //bool intersect(Ray, Vector&, Vector&);
 };
 
 #endif /* sphere_hpp */

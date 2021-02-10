@@ -20,15 +20,17 @@
 #include "ray_obj.hpp"
 #include "sphere_obj.hpp"
 #include "light_obj.hpp"
+#include "mesh_reader.hpp"
+#include "object.hpp"
 
 class Scene
 {
 public:
-    std::vector<Sphere> objects;
+    std::vector<Object*> objects;
     Light light;
-    Vector intersects(Ray, int bounds, bool diffus);    // returns the color
+    Vector intersects(Ray r, int bounds, bool diffus);    // returns the color
     bool is_shadowed(Vector, Vector);
-    void addSphere(Sphere S);
+    void addSphere(Object* o);
     Scene();
     Scene(Light);
     Vector getColor(Ray,int);

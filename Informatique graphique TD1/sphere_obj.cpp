@@ -30,15 +30,36 @@ Sphere::Sphere(Vector o, double r, Vector _rho, double refl, double tr, double _
     emmissivity = emmiss;
 };
 
-bool Sphere::intersect(Ray r)
+double Sphere::intersect(Ray r, Vector &N)
 {
     double b = 2 * r.u.dot(r.C - O);
     double c = (r.C - O).sqrnorm() - R * R;
     double det = b * b - 4 * c;          // a = 1 because r.u is normalized
-    return det >= 0;
+    double t;
+    if (det >= 0)
+    {
+        double sqrDelta = sqrt(det);
+        double t2 = ( - b + sqrDelta) / 2;
+        if (t2 < 0) t = 1e10;
+        else
+        {
+            double t1 = ( - b - sqrDelta) / 2;
+            if (t1 > 0)
+            {
+                t = t1;
+            } else {
+                t = t2;
+            };
+        }
+    } else {
+        t = 1e10;
+    }
+    Vector P = r.C + r.u * t;
+    N = P - O;
+    return t;
 }
 
-bool Sphere::intersect(Ray r, Vector& P, Vector& N)
+/*bool Sphere::intersect(Ray r, Vector& P, Vector& N)
 {
     double b = 2 * r.u.dot(r.C - O);
     double c = (r.C - O).sqrnorm() - R * R;
@@ -61,4 +82,4 @@ bool Sphere::intersect(Ray r, Vector& P, Vector& N)
     N = (P - O);
     N.normalize();
     return true;
-}
+}*/
