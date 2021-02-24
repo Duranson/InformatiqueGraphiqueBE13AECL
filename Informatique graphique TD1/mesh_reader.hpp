@@ -18,7 +18,7 @@
 #include "ray_obj.hpp"
 #include "vector_obj.hpp"
 #include "object.hpp"
- 
+
 class BoundingBox {
 public:
     bool intersect(Ray r)
@@ -45,6 +45,13 @@ public:
     Vector maxi;
 };
 
+class Noeud {
+public:
+    Noeud *fg, *fd;
+    BoundingBox bBox;
+    int debut, fin;
+};
+
 class TriangleIndices {
 public:
     TriangleIndices(int vtxi = -1, int vtxj = -1, int vtxk = -1, int ni = -1, int nj = -1, int nk = -1, int uvi = -1, int uvj = -1, int uvk = -1, int group = -1, bool added = false) : vtxi(vtxi), vtxj(vtxj), vtxk(vtxk), uvi(uvi), uvj(uvj), uvk(uvk), ni(ni), nj(nj), nk(nk), group(group) {
@@ -68,7 +75,7 @@ public:
     
     void readOBJ(const char* obj) {
  
-        char matfile[255];
+        // char matfile[255];
         char grp[255];
  
         FILE* f;
@@ -242,7 +249,8 @@ public:
             mean = (mean + v) / vertices.size();
         for (Vector& v : vertices)
             v = v - mean;
-        buildBBox();
+        BVH = new Noeud;
+        buildBVH(BVH, 0, (int) indices.size());
         fclose(f);
  
     }
@@ -255,26 +263,76 @@ public:
     std::vector<Vector> uvs;
     std::vector<Vector> vertexcolors;
     
-    BoundingBox bBox;
+    Noeud* BVH = new Noeud;
     
-    void buildBBox()
+    // BoundingBox bBox;
+    
+    void buildBVH(Noeud* n, int debut, int fin)
     {
-        for (Vector& v : vertices)
+        n->bBox = buildBBox(debut, fin);
+        n->debut = debut;
+        n->fin = fin;
+        Vector diag = n->bBox.maxi - n->bBox.mini;
+        int dim;
+        if (diag[0] >= diag[1] && diag [0] >= diag[2])
+            dim = 0;
+        else{
+            if (diag[1] >= diag[0] && diag [1] >= diag[2])
+                dim = 1;
+            else
+                dim = 2;
+        }
+        double milieu = (n->bBox.mini[dim] + n->bBox.maxi[dim]) / 2;
+        int indice_pivot = n->debut;
+        for (int i = n->debut; i < n->fin; i++){
+            double milieu_triangle = ( vertices[indices[i].vtxi][dim] + vertices[indices[i].vtxj][dim] + vertices[indices[i].vtxk][dim] ) / 3;
+            if (milieu_triangle < milieu)
+            {
+                std::swap(indices[i], indices[indice_pivot]);
+                indice_pivot++;
+            }
+        }
+        
+        n->fg = nullptr;
+        n->fd = nullptr;
+        
+        if (indice_pivot == debut || indice_pivot == fin || ( fin - debut < 5))
+            return;
+        
+        n->fg = new Noeud;
+        n->fd = new Noeud;
+        
+        buildBVH(n->fg, n->debut, indice_pivot);
+        buildBVH(n->fd, indice_pivot, n->fin);
+    }
+    
+    BoundingBox buildBBox(int debut, int fin) // indices de triangles
+    {
+        BoundingBox b;
+        b.mini = {1E6,1E6,1E6};
+        b.maxi = {-1E6,-1E6,-1E6};
+        for (int j = debut; j < fin; j++)
         {
             for (int i = 0; i < 3; i++)
             {
                 // Itération sur chaque composante
-                bBox.mini[i] = std::min(bBox.mini[i], v[i]);
-                bBox.maxi[i] = std::max(bBox.maxi[i], v[i]);
+                b.mini[i] = std::min(b.mini[i], vertices[indices[j].vtxi][i]);
+                b.maxi[i] = std::max(b.maxi[i], vertices[indices[j].vtxi][i]);
+                b.mini[i] = std::min(b.mini[i], vertices[indices[j].vtxj][i]);
+                b.maxi[i] = std::max(b.maxi[i], vertices[indices[j].vtxj][i]);
+                b.mini[i] = std::min(b.mini[i], vertices[indices[j].vtxk][i]);
+                b.maxi[i] = std::max(b.maxi[i], vertices[indices[j].vtxk][i]);
             }
         }
+        return b;
     }
     
     void move(int x, int y, int z)
     {
         for (Vector& v : vertices)
             v = v + Vector(x, y, z);
-        buildBBox();
+        BVH = new Noeud;
+        buildBVH(BVH, 0, (int) indices.size());
     }
     
     void rotate()
@@ -284,7 +342,8 @@ public:
             std::swap(v[2], v[1]);
             v[2] = -v[2];
         }
-        buildBBox();
+        BVH = new Noeud;
+        buildBVH(BVH, 0, (int) indices.size());
     }
 };
 

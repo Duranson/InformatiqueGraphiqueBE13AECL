@@ -31,8 +31,8 @@ static std::uniform_real_distribution<double> uniform(0, 1);
 
 int main() {
     // Integral::integral4Dcos2(100000);
-    int W = 128; //512;
-    int H = 128; //512;
+    int W = 256;
+    int H = 256;
     
     // std::time_t sceneCreation = std::time(nullptr);
     
@@ -40,7 +40,7 @@ int main() {
     Vector C(0,0,55);
     double fov = 60 * M_PI / 180; // field of view
     
-    double distance_plan_mise_au_point = 55;
+    double distance_plan_mise_au_point = 40;
     double ouverture = 1;
     
     // Create the light of the scene (list position, intensity)
@@ -97,7 +97,7 @@ int main() {
     mesh.readOBJ("/Users/fabienduranson/Desktop/Pougne:Pro/ECL/INFO/Info graphique/InformatiqueGraphiqueBE13AECL/objects/Australian_Cattle_Dog_v1_L3.123c9c6a5764-399b-4e86-9897-6bcb08b5e8ed/13463_Australian_Cattle_Dog_v3.obj");
     
     mesh.rotate();
-    mesh.move(0, -10, 5);
+    mesh.move(0, -10, 10);
     
     mainScene.addSphere(&mesh);
     
@@ -116,7 +116,7 @@ int main() {
             
             Vector color(0,0,0);
             
-            int N_iter = 20;
+            int N_iter = 10;
             
             for (int k = 0; k < N_iter; k++)
             {
