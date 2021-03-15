@@ -44,9 +44,10 @@ bool Scene::is_shadowed(Vector P, Vector L)
     Ray r(P, u);
     
     Vector N;
+    Vector intersectionColor;
     for (Object* s : objects)
     {
-        double t = s->intersect(r,N);
+        double t = s->intersect(r,N,intersectionColor);
         double eps = 0.01;
         if (t > eps && t < (1 - eps) * dist)
             return true;
@@ -63,12 +64,15 @@ Vector Scene::intersects(Ray r, int bounds, bool last_diffuse)
         return Vector(0,0,0);
     std::vector<double> distances = {};
     std::vector<Vector> normals = {};
+    std::vector<Vector> colors = {};
     for (Object* s : objects)
     {
         Vector N;
-        double t = s->intersect(r, N);
+        Vector intersectionColor;
+        double t = s->intersect(r, N, intersectionColor);
         distances.push_back(t);
         normals.push_back(N);
+        colors.push_back(intersectionColor);
     }
     int i = std::min_element(distances.begin(), distances.end()) - distances.begin();
     // Distance to the intersection
@@ -91,6 +95,7 @@ Vector Scene::intersects(Ray r, int bounds, bool last_diffuse)
     Vector P = r.C + r.u * t;
     // Normal to the intersection point (On suppose qu'on l'a déjà par la fonction intersects)
     Vector N = normals[i];
+    Vector intersectionColor = colors[i];
     N.normalize();
     bool inside_the_colliding_sphere = ( N.dot(r.u) > 0);
     
@@ -115,7 +120,7 @@ Vector Scene::intersects(Ray r, int bounds, bool last_diffuse)
         double fact = light.intensity / (4 * M_PI * M_PI * r2 * r2);
         double proba = std::max(- PL.dot(w), 0.) / (M_PI * r2 * r2);
         double Jacob = std::max(w.dot(- Pxprime), 0.) / (d * d);
-        color = s->rho / M_PI * (std::max(N.dot(PL) , 0.) * (Jacob / proba)  * fact);
+        color = intersectionColor / M_PI * (std::max(N.dot(PL) , 0.) * (Jacob / proba)  * fact);
     }
     
     // Add secondary illumination with recursivity
@@ -124,7 +129,7 @@ Vector Scene::intersects(Ray r, int bounds, bool last_diffuse)
     double eps = 1e-3;
     Ray wi(P + up * eps, up);
     
-    color = color + s->rho * intersects(wi, bounds + 1, true);
+    color = color + intersectionColor * intersects(wi, bounds + 1, true);
     
     // Add reflexion to color
     if (s->reflexion > 0.01)

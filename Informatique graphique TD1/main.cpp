@@ -18,6 +18,7 @@
 #include <sstream>
 #include <algorithm>
 #include <cmath>
+#include <filesystem>
 
 #include "math.h"
 
@@ -31,17 +32,25 @@ static std::uniform_real_distribution<double> uniform(0, 1);
 
 int main() {
     // Integral::integral4Dcos2(100000);
-    int W = 256;
-    int H = 256;
+    int W = 512;
+    int H = 512;
     
     // std::time_t sceneCreation = std::time(nullptr);
     
     // Creation of the camera
-    Vector C(0,0,55);
+    Vector C(10,10,55);
+    double alpha = 18 * M_PI / 180; // horizontal (~azimuth)
+    double beta = - 15 * M_PI / 180; // vertical (~elevation)
+    Vector upC(0,cos(beta),sin(beta));
+    Vector dirC = Vector(sin(alpha),0,cos(alpha));
+    Vector rightC = upC.cross(dirC);
+    upC.normalize();
+    dirC.normalize();
+    rightC.normalize();
     double fov = 60 * M_PI / 180; // field of view
     
-    double distance_plan_mise_au_point = 40;
-    double ouverture = 1;
+    double distance_plan_mise_au_point = 35;
+    double ouverture = 0.01;
     
     // Create the light of the scene (list position, intensity)
     Light mainLight(0, 2e9);
@@ -83,23 +92,38 @@ int main() {
     //mainScene.addSphere(&S_1);
     //mainScene.addSphere(&S_2);
     //mainScene.addSphere(&S_3);
-    mainScene.addSphere(&S_4);
+    //mainScene.addSphere(&S_4);
     //mainScene.addSphere(&S_5);
-    //mainScene.addSphere(&W_left);
-    //mainScene.addSphere(&W_right);
+    mainScene.addSphere(&W_left);
+    mainScene.addSphere(&W_right);
     mainScene.addSphere(&W_floor);
     //mainScene.addSphere(&W_roof);
     mainScene.addSphere(&W_back);
     //mainScene.addSphere(&W_front);
     
+    
+    //std::cout << "Current path is " << std::__fs::filesystem::current_path() << '\n';
     // Read obj file
-    TriangleMesh mesh(Vector(1,1,0));
-    mesh.readOBJ("/Users/fabienduranson/Desktop/Pougne:Pro/ECL/INFO/Info graphique/InformatiqueGraphiqueBE13AECL/objects/Australian_Cattle_Dog_v1_L3.123c9c6a5764-399b-4e86-9897-6bcb08b5e8ed/13463_Australian_Cattle_Dog_v3.obj");
+    // Chien
+    TriangleMesh dog(Vector(1,1,1));
+    dog.readOBJ("/Users/fabienduranson/Desktop/Pougne:Pro/ECL/INFO/Info graphique/InformatiqueGraphiqueBE13AECL/objects/Australian_Cattle_Dog_v1_L3.123c9c6a5764-399b-4e86-9897-6bcb08b5e8ed/13463_Australian_Cattle_Dog_v3.obj");
+    dog.loadTexture("/Users/fabienduranson/Desktop/Pougne:Pro/ECL/INFO/Info graphique/InformatiqueGraphiqueBE13AECL/objects/Australian_Cattle_Dog_v1_L3.123c9c6a5764-399b-4e86-9897-6bcb08b5e8ed/Australian_Cattle_Dog_dif.jpg");
+    dog.rotate(0);
+    dog.move(0, -10, 10);
+    //dog.move(-15, -15, 10);
+    //dog.scale(0.6);
+    mainScene.addSphere(&dog);
     
-    mesh.rotate();
-    mesh.move(0, -10, 10);
+    //Cerf
+    TriangleMesh cerf(Vector(1,1,1));
+    cerf.readOBJ("/Users/fabienduranson/Desktop/Pougne:Pro/ECL/INFO/Info graphique/InformatiqueGraphiqueBE13AECL/objects/lowpolydeer/deer.obj");
+    cerf.rotate(1);
+    cerf.scale(0.02);
+    cerf.move(10, -10, 10);
+    //mainScene.addSphere(&cerf);
     
-    mainScene.addSphere(&mesh);
+    
+    
     
     // std::string scT = std::asctime(std::localtime(&sceneCreation));
     // std::cout << scT << sceneCreation << " s to create the scene." << std::endl;
@@ -116,7 +140,7 @@ int main() {
             
             Vector color(0,0,0);
             
-            int N_iter = 10;
+            int N_iter = 100;
             
             for (int k = 0; k < N_iter; k++)
             {
@@ -126,20 +150,20 @@ int main() {
                 double x1 = sigma * cos(2*M_PI*u1) * sqrt(-2 * log(u2));
                 double x2 = sigma * sin(2*M_PI*u1) * sqrt(-2 * log(u2));
                 
-                Vector u(j - W / 2 + x2, i - H / 2 + x1,  - W / (2. * tan(fov / 2)));
+                Vector u = rightC * (j - W / 2 + x2) +  upC * (i - H / 2 + x1) +  dirC * (- W / (2. * tan(fov / 2)));
                 
                 u.normalize();
                 
                 Vector target_point = C + u * distance_plan_mise_au_point;
                 
-                Ray r(C,u); // rayon depuis le centre de l'ouverture
+                //Ray r(C,u); // rayon depuis le centre de l'ouverture
                 
-                /*Vector Cp = Integral::random_origin(ouverture, C[2]);
+                Vector Cprime = Integral::random_origin(ouverture, C);
                 
-                Vector up = target_point - Cp;
-                up.normalize();
+                Vector uprime = target_point - Cprime;
+                uprime.normalize();
                 
-                Ray r(Cp,up); // rayon depuis le centre de l'ouverture*/
+                Ray r(Cprime,uprime); // rayon depuis le centre de l'ouverture
                 
                 color = color + mainScene.intersects(r, 0, false);
             }
@@ -149,9 +173,11 @@ int main() {
             image[((H-i-1)*W + j) * 3 + 0] = std::min(255., std::pow(color[0],0.45));
             image[((H-i-1)*W + j) * 3 + 1] = std::min(255., std::pow(color[1],0.45));
             image[((H-i-1)*W + j) * 3 + 2] = std::min(255., std::pow(color[2],0.45));
-            auto diff_seconds = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - start);
-            std::cout << "Pixel " << i << "x" << j << " fait pour l'image " << H << "x" << W << ". Temps restant estimé : " << (H * W - i * H + j) * diff_seconds.count() / (i * H + j + 1) << " secondes." << std::endl;
+            //auto diff_seconds = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - start);
+            //std::cout << "Pixel " << i << "x" << j << " fait pour l'image " << H << "x" << W << ". Temps restant estimé : " << (H * W - i * H + j) * diff_seconds.count() / (i * H + j + 1) << " secondes." << std::endl;
         }
+        auto diff_seconds = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - start);
+        std::cout << "Ligne " << i << " calculée pour l'image " << H << "x" << W << ". Temps restant estimé : " << (H * W - i * H) * diff_seconds.count() / (i * H + 1) << " secondes." << std::endl;
     }
         
     // Save the result as choosen

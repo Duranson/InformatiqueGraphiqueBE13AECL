@@ -15,7 +15,7 @@ class Object
 {
 public:
     Object() {};
-    virtual double intersect(Ray r, Vector &N) = 0;
+    virtual double intersect(Ray r, Vector &N, Vector &color) = 0;
     
     Vector rho;
     double transparancy;

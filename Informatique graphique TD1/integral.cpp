@@ -61,15 +61,15 @@ Vector Integral::random_cos(Vector N)
     return up;
 }
 
-Vector Integral::random_origin(double R, double z)
+Vector Integral::random_origin(double R, Vector C)
 {
     double r = uniform(engine) * R;
     double theta = uniform(engine) * 2 * M_PI;
     
-    double x = r * cos(theta);
-    double y = r * sin(theta);
+    double x = C[0] + r * cos(theta);
+    double y = C[1] + r * sin(theta);
     
-    return Vector(x,y,z);
+    return Vector(x,y,C[2]);
 }
 
 double Integral::integral4Dcos2(int N_iter)

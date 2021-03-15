@@ -18,7 +18,7 @@ private:
     static double p_normal(double, double, double);
 public:
     static Vector random_cos(Vector);
-    static Vector random_origin(double R, double z);
+    static Vector random_origin(double R, Vector C);
     static double integral4Dcos2(int);
     static Vector integralHemisphereScene(Scene& scene, Sphere sphere, Ray r, Vector N, Vector P, Vector color, int bounds);
 };

@@ -30,7 +30,7 @@ Sphere::Sphere(Vector o, double r, Vector _rho, double refl, double tr, double _
     emmissivity = emmiss;
 };
 
-double Sphere::intersect(Ray r, Vector &N)
+double Sphere::intersect(Ray r, Vector &N, Vector &color)
 {
     double b = 2 * r.u.dot(r.C - O);
     double c = (r.C - O).sqrnorm() - R * R;
@@ -56,6 +56,7 @@ double Sphere::intersect(Ray r, Vector &N)
     }
     Vector P = r.C + r.u * t;
     N = P - O;
+    color = this->rho;
     return t;
 }
 

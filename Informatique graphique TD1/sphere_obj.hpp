@@ -26,7 +26,7 @@ public:
     double emmissivity;
     Sphere();
     Sphere(Vector o, double r, Vector _rho, double refl, double tr, double _n, double emmiss);
-    virtual double intersect(Ray r, Vector& N);
+    virtual double intersect(Ray r, Vector& N, Vector &color);
     //bool intersect(Ray, Vector&, Vector&);
 };
 
