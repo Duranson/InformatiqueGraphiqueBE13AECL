@@ -5,7 +5,7 @@
 *.slo
 *.lo
 *.o
-*.obj
+#*.obj
 
 # Precompiled Headers
 *.gch
@@ -32,4 +32,4 @@
 *.app
 
 # Images
-*.png
+#*.png
