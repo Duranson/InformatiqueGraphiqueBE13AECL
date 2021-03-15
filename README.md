@@ -1,1 +1,0 @@
-# InformatiqueGraphiqueBE13AECL
